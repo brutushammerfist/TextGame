@@ -7,24 +7,18 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
-import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import jdk.nashorn.internal.parser.JSONParser;
 
 import java.io.*;
-import java.nio.Buffer;
-import java.util.Scanner;
 
 public class TextGame extends Application {
     private File gameCart;
     private GameCartridge game;
-    private String fileContents;
 
-    private void loadCartridge(String filename) {
+    private void loadCartridge(File filename) {
         this.game = new GameCartridge(filename);
     }
 
@@ -54,7 +48,7 @@ public class TextGame extends Application {
 
         scroll.setContent(flow);
 
-        Text text = new Text("");
+        Text filePath = new Text("");
         grid.setHgap(10.0);
         grid.setVgap(10.0);
         FileChooser fileChooser = new FileChooser();
@@ -65,33 +59,23 @@ public class TextGame extends Application {
             @Override
             public void handle(ActionEvent event) {
                 gameCart = fileChooser.showOpenDialog(primaryStage);
-                text.setText(gameCart.getAbsolutePath());
+                filePath.setText(gameCart.getAbsolutePath());
             }
         });
         Button loadButton = new Button("Load Game");
         loadButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                try {
-                    BufferedReader fileReader = new BufferedReader(new FileReader(gameCart));
-                    fileContents = "";
-                    String next;
-                    while ((next = fileReader.readLine()) != null) {
-                        fileContents = fileContents + next + "\n";
-                    }
-                    fileReader.close();
-                    flow.getChildren().clear();
-                    flow.getChildren().add(new Text(fileContents));
-                } catch (IOException e) {
-                    System.out.println("Game Cartridge could not be found.");
-                    e.printStackTrace();
-                }
+                loadCartridge(gameCart);
+                flow.getChildren().clear();
+                primaryStage.setTitle(game.getGameTitle());
+                flow.getChildren().add(new Text(game.getGameTitle() + "\n" + game.getGameDescription() + "\n" + game.getGameAuthor() + "\n" + game.getVersion() + "\n" + game.getActs()));
             }
         });
 
         grid.add(selectButton, 0, 0);
         grid.add(loadButton, 0, 4);
-        grid.add(text, 1, 0);
+        grid.add(filePath, 1, 0);
 
         nextPrev.setHgap(10.0);
         nextPrev.setVgap(10.0);

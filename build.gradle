@@ -19,7 +19,7 @@ repositories {
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    compile group: 'com.google.code.gson', name: 'gson', version: 'latest.integration'
+    implementation group: 'com.google.code.gson', name: 'gson', version: 'latest.integration'
 }
 
 mainClassName = 'com.brutushammerfist.text.TextGame'
