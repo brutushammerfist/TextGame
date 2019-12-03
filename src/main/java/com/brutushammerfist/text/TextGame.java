@@ -1,5 +1,7 @@
 package com.brutushammerfist.text;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -17,9 +19,30 @@ import java.io.*;
 public class TextGame extends Application {
     private File gameCart;
     private GameCartridge game;
+    private JsonObject nextScene;
 
     private void loadCartridge(File filename) {
         this.game = new GameCartridge(filename);
+    }
+
+    private void loadScene(TextFlow flow, GridPane grid) {
+        flow.getChildren().clear();
+        flow.getChildren().add(new Text(nextScene.get("text").getAsString()));
+        grid.getChildren().clear();
+
+        JsonArray options = nextScene.getAsJsonArray("options");
+        for (int i = 0; i < options.size(); i++) {
+            Button button = new Button(options.get(i).getAsJsonObject().get("value").getAsString());
+            int finalI = i;
+            button.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    nextScene = game.proceed(nextScene.get("id").getAsString(), options.get(finalI).getAsJsonObject().get("result").getAsString());
+                    loadScene(flow, grid);
+                }
+            });
+            grid.add(button, i, 0);
+        }
     }
 
     @Override
@@ -67,9 +90,9 @@ public class TextGame extends Application {
             @Override
             public void handle(ActionEvent event) {
                 loadCartridge(gameCart);
-                flow.getChildren().clear();
                 primaryStage.setTitle(game.getGameTitle());
-                flow.getChildren().add(new Text(game.getGameTitle() + "\n" + game.getGameDescription() + "\n" + game.getGameAuthor() + "\n" + game.getVersion() + "\n" + game.getActs()));
+                nextScene = game.proceed(null, null);
+                loadScene(flow, grid);
             }
         });
 

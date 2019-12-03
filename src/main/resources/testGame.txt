@@ -1,0 +1,41 @@
+{
+    "title" : "Title",
+    "description" : "Describe your game here.",
+    "author" : "WriterGuy",
+    "version" : "0.0",
+    "scenes" : [
+        {
+            "id" : "Opening",
+            "type" : "dialogue",
+            "text" : "I'm a placeholder. Watch me hold places.",
+            "options" : [
+                    {
+                        "value" : "Stone him.",
+                        "result" : "fight"
+                    },
+                    {
+                        "value" : "Run.",
+                        "result" : "fight"
+                    }
+            ]
+        },
+        {
+            "begin" : "true",
+            "id" : "Main Menu",
+            "type" : "menu",
+            "text" : "text",
+            "options" : [
+                    {
+                        "value" : "Start Game",
+                        "result" : "Opening"
+                    }
+            ]
+        },
+        {
+            "id" : "fight",
+            "type" : "combat",
+            "text" : "test",
+            "options" : []
+        }
+    ]
+}
