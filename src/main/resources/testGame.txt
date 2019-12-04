@@ -3,6 +3,13 @@
     "description" : "Describe your game here.",
     "author" : "WriterGuy",
     "version" : "0.0",
+    "player" : {
+        "name" : "A-A-Ron",
+        "class" : "Warrior",
+        "currency" : "200",
+        "health" : "500",
+        "power" : "15"
+    },
     "scenes" : [
         {
             "id" : "Opening",
@@ -34,8 +41,41 @@
         {
             "id" : "fight",
             "type" : "combat",
-            "text" : "test",
+            "text" : "Making your way through the forest, you encounter a black bear. It is not much larger than the size of your pit bull at home, but the creature is still quite fearsome.",
+            "monsters" : ["Bear"],
+            "win" : "win",
+            "lose" : "lose"
+        },
+        {
+            "id" : "win",
+            "type" : "dialogue",
+            "text" : "You won!",
             "options" : []
+        },
+        {
+            "id" : "lose",
+            "type" : "dialogue",
+            "text" : "You lost!",
+            "options" : []
+        }
+    ],
+    "monsters" : [
+        {
+            "name" : "Bear",
+            "type" : "beast",
+            "health" : "100",
+            "attacks" : [
+                {
+                    "name" : "claw",
+                    "text" : "The bear cub swipes at you with its claws. This deals %s damage!",
+                    "power" : "5"
+                },
+                {
+                    "name" : "pounce",
+                    "text" : "The bear cub pounces at you, dealing %s damage with its heft!",
+                    "power" : "10"
+                }
+            ]
         }
     ]
 }

@@ -20,9 +20,39 @@ public class TextGame extends Application {
     private File gameCart;
     private GameCartridge game;
     private JsonObject nextScene;
+    private Monster monster;
 
     private void loadCartridge(File filename) {
         this.game = new GameCartridge(filename);
+    }
+
+    private void loadCombat(TextFlow flow, GridPane grid) {
+        if (this.monster.getHealth() > 0 && game.getPlayerHealth() > 0) {
+            grid.getChildren().clear();
+            Button button = new Button("Attack");
+            button.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    monster.takeDamage(game.playerAttack());
+                    game.damagePlayer(monster.attack());
+
+                    flow.getChildren().clear();
+                    Text text = new Text(nextScene.get("text").getAsString() + "\n\n\n" + String.format("The monster currently has %s health remaining.", monster.getHealth()));
+                    flow.getChildren().add(text);
+
+                    loadCombat(flow, grid);
+                }
+            });
+            grid.add(button, 0, 0);
+        } else {
+            if (this.monster.getHealth() < 1) {
+                this.nextScene = game.proceed(nextScene.get("id").getAsString(), true);
+                loadScene(flow, grid);
+            } else {
+                this.nextScene = game.proceed(nextScene.get("id").getAsString(), false);
+                loadScene(flow, grid);
+            }
+        }
     }
 
     private void loadScene(TextFlow flow, GridPane grid) {
@@ -30,18 +60,23 @@ public class TextGame extends Application {
         flow.getChildren().add(new Text(nextScene.get("text").getAsString()));
         grid.getChildren().clear();
 
-        JsonArray options = nextScene.getAsJsonArray("options");
-        for (int i = 0; i < options.size(); i++) {
-            Button button = new Button(options.get(i).getAsJsonObject().get("value").getAsString());
-            int finalI = i;
-            button.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-                    nextScene = game.proceed(nextScene.get("id").getAsString(), options.get(finalI).getAsJsonObject().get("result").getAsString());
-                    loadScene(flow, grid);
-                }
-            });
-            grid.add(button, i, 0);
+        if (nextScene.has("win")) {
+            this.monster = this.game.getMonster(nextScene.getAsJsonArray("monsters"));
+            this.loadCombat(flow, grid);
+        } else {
+            JsonArray options = nextScene.getAsJsonArray("options");
+            for (int i = 0; i < options.size(); i++) {
+                Button button = new Button(options.get(i).getAsJsonObject().get("value").getAsString());
+                int finalI = i;
+                button.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent event) {
+                        nextScene = game.proceed(nextScene.get("id").getAsString(), options.get(finalI).getAsJsonObject().get("result").getAsString());
+                        loadScene(flow, grid);
+                    }
+                });
+                grid.add(button, i, 0);
+            }
         }
     }
 
@@ -91,7 +126,7 @@ public class TextGame extends Application {
             public void handle(ActionEvent event) {
                 loadCartridge(gameCart);
                 primaryStage.setTitle(game.getGameTitle());
-                nextScene = game.proceed(null, null);
+                nextScene = game.proceed(null, (String) null);
                 loadScene(flow, grid);
             }
         });

@@ -4,9 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.AbstractMap;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -18,6 +16,12 @@ public class GameCartridge {
     private Gson jsonConverter = new Gson();
     private JsonArray scenes;
     private AbstractMap<String, Map<String, Integer>> graph = new HashMap<String, Map<String, Integer>>();
+    private AbstractMap<String, Map<Boolean, Integer>> combatGraph = new HashMap<String, Map<Boolean, Integer>>();
+    private JsonArray monsterJson;
+    private ArrayList<Monster> monsters = new ArrayList<Monster>();
+    private AbstractMap<String, Integer> monsterTable = new HashMap<String, Integer>();
+
+    private PlayerCharacter player;
 
     public GameCartridge() {}
 
@@ -50,23 +54,43 @@ public class GameCartridge {
     // Parse JSON to create tree/graph of where options lead.
     private void parseGameData() {
         this.scenes = this.fileJson.getAsJsonArray("scenes");
+        this.monsterJson = this.fileJson.getAsJsonArray("monsters");
 
+        JsonObject playerJson = this.fileJson.getAsJsonObject("player");
+        this.player = new PlayerCharacter(playerJson.get("name").getAsString(), playerJson.get("class").getAsString(), playerJson.get("currency").getAsInt(), playerJson.get("health").getAsInt(), playerJson.get("power").getAsInt());
+
+        // Fill out lookup tables for scenes and monsters
         AbstractMap<String, Integer> tempMap = new HashMap<String, Integer>();
         for (int i = 0; i < this.scenes.size(); i++) {
-            System.out.println(this.scenes.get(i).getAsJsonObject().get("id").getAsString());
-            System.out.println(i);
             tempMap.put(this.scenes.get(i).getAsJsonObject().get("id").getAsString(), i);
+        }
+
+        for (int i = 0; i < this.monsterJson.size(); i++) {
+            JsonObject currMonster = this.monsterJson.get(i).getAsJsonObject();
+
+            this.monsterTable.put(currMonster.get("name").getAsString(), i);
+            this.monsters.add(new Monster(currMonster.get("name").getAsString(), currMonster.get("type").getAsString(), currMonster.get("health").getAsInt(), currMonster.getAsJsonArray("attacks")));
         }
 
         for (int i = 0; i < this.scenes.size(); i++) {
             JsonObject currScene = this.scenes.get(i).getAsJsonObject();
 
-            AbstractMap<String, Integer> results = new HashMap<String, Integer>();
-            for (int j = 0; j < currScene.getAsJsonArray("options").size(); j++) {
-                results.put(currScene.getAsJsonArray("options").get(j).getAsJsonObject().get("result").getAsString(), tempMap.get(currScene.getAsJsonArray("options").get(j).getAsJsonObject().get("result").getAsString()));
-            }
+            if (currScene.has("win")) {
+                AbstractMap<Boolean, Integer> combatResults = new HashMap<Boolean, Integer>();
 
-            this.graph.put(currScene.get("id").getAsString(), results);
+                combatResults.put(true, tempMap.get(currScene.get("win").getAsString()));
+                combatResults.put(false, tempMap.get(currScene.get("lose").getAsString()));
+
+                this.combatGraph.put(currScene.get("id").getAsString(), combatResults);
+            } else {
+                AbstractMap<String, Integer> results = new HashMap<String, Integer>();
+
+                for (int j = 0; j < currScene.getAsJsonArray("options").size(); j++) {
+                    results.put(currScene.getAsJsonArray("options").get(j).getAsJsonObject().get("result").getAsString(), tempMap.get(currScene.getAsJsonArray("options").get(j).getAsJsonObject().get("result").getAsString()));
+                }
+
+                this.graph.put(currScene.get("id").getAsString(), results);
+            }
         }
     }
 
@@ -83,6 +107,30 @@ public class GameCartridge {
             return this.scenes.get(next).getAsJsonObject();
         }
         return null;
+    }
+
+    JsonObject proceed(String currScene, Boolean winner) {
+        Integer next = this.combatGraph.get(currScene).get(winner);
+        return this.scenes.get(next).getAsJsonObject();
+    }
+
+    Monster getMonster(JsonArray monsterSpawn) {
+        Integer monsterIndex = new Random().nextInt(monsterSpawn.size());
+
+        //Integer monsterIndex = this.monsterTable.get(monsterName);
+        return this.monsters.get(monsterIndex);
+    }
+
+    Integer getPlayerHealth() {
+        return this.player.getHealth();
+    }
+
+    public void damagePlayer(Integer dmg) {
+        this.player.takeDamage(dmg);
+    }
+
+    Integer playerAttack() {
+        return this.player.attack();
     }
 
     public String getContents() {
