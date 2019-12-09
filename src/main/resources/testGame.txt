@@ -42,7 +42,16 @@
             "id" : "fight",
             "type" : "combat",
             "text" : "Making your way through the forest, you encounter a black bear. It is not much larger than the size of your pit bull at home, but the creature is still quite fearsome.",
-            "monsters" : ["Bear"],
+            "monsters" : [
+				{
+					"name" : "Bear",
+					"spawn" : "15"
+				},
+				{
+					"name" : "Zombie",
+					"spawn" : "85"
+				}
+			],
             "win" : "win",
             "lose" : "lose"
         },
@@ -73,6 +82,23 @@
                 {
                     "name" : "pounce",
                     "text" : "The bear cub pounces at you, dealing %s damage with its heft!",
+                    "power" : "10"
+                }
+            ]
+        },
+		{
+            "name" : "Zombie",
+            "type" : "beast",
+            "health" : "100",
+            "attacks" : [
+                {
+                    "name" : "bite",
+                    "text" : "The zombie bites into your flesh, ripping a piece off and chewing it. This deals %s damage!",
+                    "power" : "15"
+                },
+                {
+                    "name" : "scratch",
+                    "text" : "The diseased nails of the undead person dig into your skin, dealing %s damage!",
                     "power" : "10"
                 }
             ]
