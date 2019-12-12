@@ -5,33 +5,38 @@ import com.google.gson.JsonObject;
 
 import java.util.Random;
 
-public class Monster {
+public class Monster{
     private String name;
     private String type;
-    private Integer health;
+    private String text;
+    private int health;
+    private int maxHealth;
     private JsonArray attacks;
 
     public Monster() {}
 
-    Monster(String name, String type, Integer health, JsonArray attacks) {
+    Monster(String name, String type, int health, JsonArray attacks) {
         this.name = name;
         this.type = type;
         this.health = health;
+        this.maxHealth = health;
         this.attacks = attacks;
     }
 
-    public void takeDamage(Integer damage) {
+    public void takeDamage(int damage) {
         this.health -= damage;
     }
 
     public JsonObject getAttack() {
-        Integer atk = new Random().nextInt(this.attacks.size());
+        int atk = new Random().nextInt(this.attacks.size());
         return this.attacks.get(atk).getAsJsonObject();
     }
 
-    public Integer attack() {
+    public int attack() {
         return this.getAttack().get("power").getAsInt();
     }
+
+    public JsonArray getAttacks() { return this.attacks; }
 
     public String getName() {
         return this.name;
@@ -41,9 +46,15 @@ public class Monster {
         return this.type;
     }
 
-    public Integer getHealth() {
+    public int getHealth() {
         return this.health;
     }
+
+    public int getMaxHealth() { return this.maxHealth; }
+
+    public String getText() { return this.text; }
+
+    public void setAttacks(JsonArray atks) { this.attacks = atks; }
 
     public void setName(String name) {
         this.name = name;
@@ -53,7 +64,11 @@ public class Monster {
         this.type = type;
     }
 
-    public void setHealth() {
+    public void setHealth(int health) {
         this.health = health;
     }
+
+    public void setMaxHealth(int maxHealth) { this.maxHealth = maxHealth; }
+
+    public void setText(String text) { this.text = text; }
 }

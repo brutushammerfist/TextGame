@@ -48,7 +48,7 @@ public class GameCartridge {
         }
         // Fix this to know it broke
 
-        return new JsonObject();
+        return null;
     }
 
     // Parse JSON to create tree/graph of where options lead.
@@ -103,33 +103,43 @@ public class GameCartridge {
                 }
             }
         } else {
-            Integer next = this.graph.get(currScene).get(nextScene);
+            int next = this.graph.get(currScene).get(nextScene);
             return this.scenes.get(next).getAsJsonObject();
         }
         return null;
     }
 
     JsonObject proceed(String currScene, Boolean winner) {
-        Integer next = this.combatGraph.get(currScene).get(winner);
+        int next = this.combatGraph.get(currScene).get(winner);
         return this.scenes.get(next).getAsJsonObject();
     }
 
     Monster getMonster(JsonArray monsterSpawn) {
-        Integer monsterIndex = new Random().nextInt(monsterSpawn.size());
+        int spawn = new Random().nextInt(100);
+        int lowerBound = 0;
 
-        //Integer monsterIndex = this.monsterTable.get(monsterName);
-        return this.monsters.get(monsterIndex);
+        for (int i = 0; i < monsterSpawn.size(); i++) {
+            if (spawn >= lowerBound && spawn < monsterSpawn.get(i).getAsJsonObject().get("spawn").getAsInt()) {
+                Monster spawned = this.monsters.get(this.monsterTable.get(monsterSpawn.get(i).getAsJsonObject().get("name").getAsString()));
+                spawned.setText(monsterSpawn.get(i).getAsJsonObject().get("text").getAsString());
+                return spawned;
+            } else {
+                lowerBound = monsterSpawn.get(i).getAsJsonObject().get("spawn").getAsInt();
+            }
+        }
+
+        return null;
     }
 
-    Integer getPlayerHealth() {
+    int getPlayerHealth() {
         return this.player.getHealth();
     }
 
-    public void damagePlayer(Integer dmg) {
+    public void damagePlayer(int dmg) {
         this.player.takeDamage(dmg);
     }
 
-    Integer playerAttack() {
+    int playerAttack() {
         return this.player.attack();
     }
 

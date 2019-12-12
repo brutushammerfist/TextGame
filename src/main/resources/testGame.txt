@@ -41,15 +41,16 @@
         {
             "id" : "fight",
             "type" : "combat",
-            "text" : "Making your way through the forest, you encounter a black bear. It is not much larger than the size of your pit bull at home, but the creature is still quite fearsome.",
             "monsters" : [
 				{
 					"name" : "Bear",
-					"spawn" : "15"
+					"spawn" : "15",
+					"text" : "Making your way through the forest, you encounter a black bear. It is not much larger than the size of your pit bull at home, but the creature is still quite fearsome."
 				},
 				{
 					"name" : "Zombie",
-					"spawn" : "85"
+					"spawn" : "85",
+					"text" : "Making your way through the forest, you encounter a Zombie! It doesn't seem to be very friendly..."
 				}
 			],
             "win" : "win",
@@ -88,7 +89,7 @@
         },
 		{
             "name" : "Zombie",
-            "type" : "beast",
+            "type" : "undead",
             "health" : "100",
             "attacks" : [
                 {

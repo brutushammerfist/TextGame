@@ -37,7 +37,7 @@ public class TextGame extends Application {
                     game.damagePlayer(monster.attack());
 
                     flow.getChildren().clear();
-                    Text text = new Text(nextScene.get("text").getAsString() + "\n\n\n" + String.format("The monster currently has %s health remaining.", monster.getHealth()));
+                    Text text = new Text(monster.getText() + "\n\n\n" + String.format("The monster currently has %s health remaining.", monster.getHealth()));
                     flow.getChildren().add(text);
 
                     loadCombat(flow, grid);
@@ -52,18 +52,24 @@ public class TextGame extends Application {
                 this.nextScene = game.proceed(nextScene.get("id").getAsString(), false);
                 loadScene(flow, grid);
             }
+            this.monster.setHealth(this.monster.getMaxHealth());
         }
     }
 
     private void loadScene(TextFlow flow, GridPane grid) {
-        flow.getChildren().clear();
-        flow.getChildren().add(new Text(nextScene.get("text").getAsString()));
-        grid.getChildren().clear();
-
         if (nextScene.has("win")) {
             this.monster = this.game.getMonster(nextScene.getAsJsonArray("monsters"));
+
+            flow.getChildren().clear();
+            flow.getChildren().add(new Text(this.monster.getText()));
+            grid.getChildren().clear();
+
             this.loadCombat(flow, grid);
         } else {
+            flow.getChildren().clear();
+            flow.getChildren().add(new Text(nextScene.get("text").getAsString()));
+            grid.getChildren().clear();
+
             JsonArray options = nextScene.getAsJsonArray("options");
             for (int i = 0; i < options.size(); i++) {
                 Button button = new Button(options.get(i).getAsJsonObject().get("value").getAsString());

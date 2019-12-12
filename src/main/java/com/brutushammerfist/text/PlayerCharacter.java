@@ -3,26 +3,28 @@ package com.brutushammerfist.text;
 public class PlayerCharacter {
     private String name;
     private String playClass;
-    private Integer currencyPouch;
-    private Integer health;
-    private Integer power;
+    private int currencyPouch;
+    private int health;
+    private int maxHealth;
+    private int power;
 
     public PlayerCharacter() {}
 
-    PlayerCharacter(String name, String playClass, Integer currencyPouch, Integer health, Integer power) {
+    PlayerCharacter(String name, String playClass, int currencyPouch, int health, int power) {
         this.name = name;
         this.playClass = playClass;
         this.currencyPouch = currencyPouch;
         this.health = health;
+        this.maxHealth = health;
         this.power = power;
     }
 
-    public void takeDamage(Integer damage) {
+    public void takeDamage(int damage) {
         this.health -= damage;
     }
 
     // Take in attack type and then calculate random number based on attack and power
-    public Integer attack() {
+    public int attack() {
         return this.power;
     }
 
@@ -34,11 +36,11 @@ public class PlayerCharacter {
         return this.playClass;
     }
 
-    public Integer getCurrencyPouch() {
+    public int getCurrencyPouch() {
         return this.currencyPouch;
     }
 
-    public Integer getHealth() {
+    public int getHealth() {
         return this.health;
     }
 
@@ -50,11 +52,11 @@ public class PlayerCharacter {
         this.playClass = playClass;
     }
 
-    public void setCurrencyPouch(Integer currencyPouch) {
+    public void setCurrencyPouch(int currencyPouch) {
         this.currencyPouch = currencyPouch;
     }
 
-    public void setHealth(Integer health) {
+    public void setHealth(int health) {
         this.health = health;
     }
 }
