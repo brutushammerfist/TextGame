@@ -26,15 +26,17 @@ public class TextGame extends Application {
         this.game = new GameCartridge(filename);
     }
 
-    private void loadCombat(TextFlow flow, GridPane grid) {
+    private void loadCombat(TextFlow flow, VBox grid) {
         if (this.monster.getHealth() > 0 && game.getPlayerHealth() > 0) {
             grid.getChildren().clear();
+
             Button button = new Button("Attack");
             button.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
                     monster.takeDamage(game.playerAttack());
-                    game.damagePlayer(monster.attack());
+                    JsonObject attack = monster.getAttack();
+                    game.damagePlayer(attack.get("power").getAsInt());
 
                     flow.getChildren().clear();
                     Text text = new Text(monster.getText() + "\n\n\n" + String.format("The monster currently has %s health remaining.", monster.getHealth()));
@@ -43,7 +45,7 @@ public class TextGame extends Application {
                     loadCombat(flow, grid);
                 }
             });
-            grid.add(button, 0, 0);
+            grid.getChildren().add(button);
         } else {
             if (this.monster.getHealth() < 1) {
                 this.nextScene = game.proceed(nextScene.get("id").getAsString(), true);
@@ -56,7 +58,7 @@ public class TextGame extends Application {
         }
     }
 
-    private void loadScene(TextFlow flow, GridPane grid) {
+    private void loadScene(TextFlow flow, VBox grid) {
         if (nextScene.has("win")) {
             this.monster = this.game.getMonster(nextScene.getAsJsonArray("monsters"));
 
@@ -81,7 +83,9 @@ public class TextGame extends Application {
                         loadScene(flow, grid);
                     }
                 });
-                grid.add(button, i, 0);
+                button.setMaxWidth(Double.MAX_VALUE);
+                button.wrapTextProperty().setValue(true);
+                grid.getChildren().add(button);
             }
         }
     }
@@ -91,16 +95,17 @@ public class TextGame extends Application {
         GridPane root = new GridPane();
 
         ScrollPane scroll = new ScrollPane();
-        GridPane grid = new GridPane();
+        ScrollPane gridScroll = new ScrollPane();
+        VBox grid = new VBox();
         GridPane nextPrev = new GridPane();
         scroll.minWidthProperty().bind(primaryStage.widthProperty().multiply(0.99));
         scroll.maxWidthProperty().bind(primaryStage.widthProperty().multiply(0.99));
         scroll.minHeightProperty().bind(primaryStage.heightProperty().multiply(0.70));
         scroll.maxHeightProperty().bind(primaryStage.heightProperty().multiply(0.70));
-        grid.minWidthProperty().bind(primaryStage.widthProperty().multiply(0.75));
-        grid.maxWidthProperty().bind(primaryStage.widthProperty().multiply(0.75));
-        grid.minHeightProperty().bind(primaryStage.heightProperty().multiply(0.2425));
-        grid.maxHeightProperty().bind(primaryStage.heightProperty().multiply(0.2425));
+        gridScroll.minWidthProperty().bind(primaryStage.widthProperty().multiply(0.75));
+        gridScroll.maxWidthProperty().bind(primaryStage.widthProperty().multiply(0.75));
+        gridScroll.minHeightProperty().bind(primaryStage.heightProperty().multiply(0.2425));
+        gridScroll.maxHeightProperty().bind(primaryStage.heightProperty().multiply(0.2425));
         nextPrev.minWidthProperty().bind(primaryStage.widthProperty().multiply(0.24));
         nextPrev.maxWidthProperty().bind(primaryStage.widthProperty().multiply(0.24));
         nextPrev.minHeightProperty().bind(primaryStage.heightProperty().multiply(0.2425));
@@ -109,12 +114,14 @@ public class TextGame extends Application {
         TextFlow flow = new TextFlow();
         flow.minWidthProperty().bind(scroll.widthProperty().multiply(0.99));
         flow.maxWidthProperty().bind(scroll.widthProperty().multiply(0.99));
+        grid.minWidthProperty().bind(gridScroll.widthProperty().multiply(0.99));
+        grid.maxWidthProperty().bind(gridScroll.widthProperty().multiply(0.99));
 
         scroll.setContent(flow);
+        gridScroll.setContent(grid);
 
         Text filePath = new Text("");
-        grid.setHgap(10.0);
-        grid.setVgap(10.0);
+        grid.setSpacing(10.0);
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Game File");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("All File", "*.*"));
@@ -126,6 +133,7 @@ public class TextGame extends Application {
                 filePath.setText(gameCart.getAbsolutePath());
             }
         });
+        selectButton.setMaxWidth(Double.MAX_VALUE);
         Button loadButton = new Button("Load Game");
         loadButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -136,10 +144,12 @@ public class TextGame extends Application {
                 loadScene(flow, grid);
             }
         });
+        loadButton.setMaxWidth(Double.MAX_VALUE);
 
-        grid.add(selectButton, 0, 0);
-        grid.add(loadButton, 0, 4);
-        grid.add(filePath, 1, 0);
+        grid.getChildren().add(selectButton);
+        grid.getChildren().add(filePath);
+        grid.getChildren().add(loadButton);
+        grid.setFillWidth(true);
 
         nextPrev.setHgap(10.0);
         nextPrev.setVgap(10.0);
@@ -147,7 +157,7 @@ public class TextGame extends Application {
         nextPrev.add(new Button("Next"), 0, 1);
 
         root.add(scroll, 0, 0, 6, 6);
-        root.add(grid, 0, 7, 1, 1);
+        root.add(gridScroll, 0, 7, 1, 1);
         root.add(nextPrev, 1, 7, 1, 1);
 
         Scene scene = new Scene(root, 600, 600);

@@ -74,6 +74,7 @@
             "name" : "Bear",
             "type" : "beast",
             "health" : "100",
+            "loot" : "beast",
             "attacks" : [
                 {
                     "name" : "claw",
@@ -91,6 +92,7 @@
             "name" : "Zombie",
             "type" : "undead",
             "health" : "100",
+            "loot" : "undead",
             "attacks" : [
                 {
                     "name" : "bite",
@@ -99,10 +101,18 @@
                 },
                 {
                     "name" : "scratch",
-                    "text" : "The diseased nails of the undead person dig into your skin, dealing %s damage!",
+                    "text" : "The diseased nails of the undead dig into your skin, dealing %s damage!",
                     "power" : "10"
                 }
             ]
         }
-    ]
+    ],
+    "loottables" :{
+        "beast" : [
+
+        ],
+        "undead" : [
+
+        ]
+    }
 }

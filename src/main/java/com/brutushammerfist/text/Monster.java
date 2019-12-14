@@ -21,6 +21,7 @@ public class Monster{
         this.health = health;
         this.maxHealth = health;
         this.attacks = attacks;
+        this.text = null;
     }
 
     public void takeDamage(int damage) {
