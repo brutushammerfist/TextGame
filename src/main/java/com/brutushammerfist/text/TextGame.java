@@ -1,13 +1,14 @@
 package com.brutushammerfist.text;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
@@ -15,12 +16,16 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.*;
+import java.util.ArrayList;
 
 public class TextGame extends Application {
     private File gameCart;
     private GameCartridge game;
     private JsonObject nextScene;
     private Monster monster;
+    private ArrayList<String> choices = new ArrayList<String>();
+    private FileChooser fileChooser = new FileChooser();
+    private Gson gson = new Gson();
 
     private void loadCartridge(File filename) {
         this.game = new GameCartridge(filename);
@@ -45,6 +50,7 @@ public class TextGame extends Application {
                     loadCombat(flow, grid);
                 }
             });
+            button.setMaxWidth(Double.MAX_VALUE);
             grid.getChildren().add(button);
         } else {
             if (this.monster.getHealth() < 1) {
@@ -79,6 +85,7 @@ public class TextGame extends Application {
                 button.setOnAction(new EventHandler<ActionEvent>() {
                     @Override
                     public void handle(ActionEvent event) {
+                        choices.add(options.get(finalI).getAsJsonObject().get("result").getAsString());
                         nextScene = game.proceed(nextScene.get("id").getAsString(), options.get(finalI).getAsJsonObject().get("result").getAsString());
                         loadScene(flow, grid);
                     }
@@ -90,14 +97,138 @@ public class TextGame extends Application {
         }
     }
 
+    private void resetToBeginningScreen(Stage primaryStage, TextFlow flow, VBox grid) {
+        flow.getChildren().clear();
+        grid.getChildren().clear();
+        this.gameCart = null;
+        this.monster = null;
+        this.game = null;
+        this.nextScene = null;
+        this.choices.clear();
+
+        Text filePath = new Text("");
+        grid.setSpacing(10.0);
+        this.fileChooser.setTitle("TextGame");
+        this.fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("All File", "*.*"));
+        Button selectButton = new Button("Choose Game");
+        selectButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                gameCart = fileChooser.showOpenDialog(primaryStage);
+                filePath.setText(gameCart.getAbsolutePath());
+            }
+        });
+        selectButton.setMaxWidth(Double.MAX_VALUE);
+        Button loadButton = new Button("Load Game");
+        loadButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                loadCartridge(gameCart);
+                primaryStage.setTitle(game.getGameTitle());
+                nextScene = game.proceed(null, (String) null);
+                loadScene(flow, grid);
+            }
+        });
+        loadButton.setMaxWidth(Double.MAX_VALUE);
+
+        grid.getChildren().add(selectButton);
+        grid.getChildren().add(filePath);
+        grid.getChildren().add(loadButton);
+        grid.setFillWidth(true);
+    }
+
+    private void save(Stage primaryStage) {
+        String filepath = this.gameCart.getAbsolutePath().substring(0, this.gameCart.getAbsolutePath().lastIndexOf('\\'));
+
+        this.fileChooser.setInitialDirectory(new File(filepath));
+        File saveFile = this.fileChooser.showSaveDialog(primaryStage);
+
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(saveFile.getAbsolutePath()));
+
+            JsonObject json = new JsonObject();
+
+            JsonArray choices = new JsonArray();
+            for (String a : this.choices) {
+                choices.add(a);
+            }
+
+            System.out.println(choices.toString());
+            json.addProperty("choices", this.gson.toJson(choices));
+
+            System.out.println(choices);
+
+            writer.write(this.gson.toJson(json));
+            writer.close();
+        } catch (IOException e) {
+            System.out.println("IO Exception during Save!");
+        }
+    }
+
+    private void load(Stage primaryStage, TextFlow flow, VBox grid) {
+        File filepath = this.fileChooser.showOpenDialog(primaryStage);
+        String fileContents = "";
+
+        try {
+            BufferedReader fileReader = new BufferedReader(new FileReader(filepath));
+            String next;
+            while ((next = fileReader.readLine()) != null) {
+                fileContents = fileContents + next;
+            }
+            fileReader.close();
+
+            System.out.println(choices);
+
+            JsonObject json = gson.fromJson(fileContents, JsonObject.class);
+            JsonArray choices = gson.fromJson(json.get("choices").getAsString(), JsonArray.class);
+
+            for (int i = 0; i < choices.size(); i++) {
+                this.nextScene = this.game.proceed(this.nextScene.get("id").getAsString(), choices.get(i).getAsString());
+            }
+
+            this.loadScene(flow, grid);
+        } catch (IOException e) {
+            System.out.println("Game Cartridge could not be found.");
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public void start(Stage primaryStage) {
-        GridPane root = new GridPane();
+        VBox root = new VBox();
+
+        GridPane gameRoot = new GridPane();
 
         ScrollPane scroll = new ScrollPane();
         ScrollPane gridScroll = new ScrollPane();
         VBox grid = new VBox();
         GridPane nextPrev = new GridPane();
+        TextFlow flow = new TextFlow();
+
+        final Menu fileMenu = new Menu("File");
+        MenuItem restart = new MenuItem("Close current game");
+        restart.setOnAction(event -> {
+            this.resetToBeginningScreen(primaryStage, flow, grid);
+        });
+        MenuItem load = new MenuItem("Load Save");
+        load.setOnAction(event -> {
+            this.load(primaryStage, flow, grid);
+        });
+        MenuItem save = new MenuItem("Save Game");
+        save.setOnAction(event -> {
+            this.save(primaryStage);
+        });
+        fileMenu.getItems().addAll(restart, load, save);
+
+        final Menu optionsMenu = new Menu("Options");
+
+
+        final Menu helpMenu = new Menu("Help");
+
+
+        MenuBar menuBar = new MenuBar();
+        menuBar.getMenus().addAll(fileMenu, optionsMenu, helpMenu);
+
         scroll.minWidthProperty().bind(primaryStage.widthProperty().multiply(0.99));
         scroll.maxWidthProperty().bind(primaryStage.widthProperty().multiply(0.99));
         scroll.minHeightProperty().bind(primaryStage.heightProperty().multiply(0.70));
@@ -111,7 +242,6 @@ public class TextGame extends Application {
         nextPrev.minHeightProperty().bind(primaryStage.heightProperty().multiply(0.2425));
         nextPrev.maxHeightProperty().bind(primaryStage.heightProperty().multiply(0.2425));
 
-        TextFlow flow = new TextFlow();
         flow.minWidthProperty().bind(scroll.widthProperty().multiply(0.99));
         flow.maxWidthProperty().bind(scroll.widthProperty().multiply(0.99));
         grid.minWidthProperty().bind(gridScroll.widthProperty().multiply(0.99));
@@ -156,9 +286,11 @@ public class TextGame extends Application {
         nextPrev.add(new Button("Previous"), 0, 0);
         nextPrev.add(new Button("Next"), 0, 1);
 
-        root.add(scroll, 0, 0, 6, 6);
-        root.add(gridScroll, 0, 7, 1, 1);
-        root.add(nextPrev, 1, 7, 1, 1);
+        gameRoot.add(scroll, 0, 0, 6, 6);
+        gameRoot.add(gridScroll, 0, 7, 1, 1);
+        gameRoot.add(nextPrev, 1, 7, 1, 1);
+
+        root.getChildren().addAll(menuBar, gameRoot);
 
         Scene scene = new Scene(root, 600, 600);
 
