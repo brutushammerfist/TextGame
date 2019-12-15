@@ -54,10 +54,12 @@ public class TextGame extends Application {
             grid.getChildren().add(button);
         } else {
             if (this.monster.getHealth() < 1) {
-                this.nextScene = game.proceed(nextScene.get("id").getAsString(), true);
+                this.choices.add(this.nextScene.get("win").getAsString() + "`" + "win");
+                this.nextScene = game.proceed(this.nextScene.get("id").getAsString(), true);
                 loadScene(flow, grid);
             } else {
-                this.nextScene = game.proceed(nextScene.get("id").getAsString(), false);
+                this.choices.add(this.nextScene.get("win").getAsString() + "`" + "lose");
+                this.nextScene = game.proceed(this.nextScene.get("id").getAsString(), false);
                 loadScene(flow, grid);
             }
             this.monster.setHealth(this.monster.getMaxHealth());
@@ -177,13 +179,23 @@ public class TextGame extends Application {
             }
             fileReader.close();
 
-            System.out.println(choices);
-
             JsonObject json = gson.fromJson(fileContents, JsonObject.class);
             JsonArray choices = gson.fromJson(json.get("choices").getAsString(), JsonArray.class);
 
             for (int i = 0; i < choices.size(); i++) {
-                this.nextScene = this.game.proceed(this.nextScene.get("id").getAsString(), choices.get(i).getAsString());
+                if(choices.get(i).getAsString().contains("`")) {
+                    String trimmed = choices.get(i).getAsString().substring(0, choices.get(i).getAsString().lastIndexOf("`"));
+                    String result = choices.get(i).getAsString().substring(choices.get(i).getAsString().lastIndexOf("`") + 1);
+                    System.out.println(result);
+                    if (result.contains("win")) {
+                        this.nextScene = this.game.proceed(this.nextScene.get("id").getAsString(), true);
+                    } else {
+                        this.nextScene = this.game.proceed(this.nextScene.get("id").getAsString(), false);
+                    }
+                } else {
+                    this.nextScene = this.game.proceed(this.nextScene.get("id").getAsString(), choices.get(i).getAsString());
+                }
+
             }
 
             this.loadScene(flow, grid);

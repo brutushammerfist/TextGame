@@ -102,6 +102,7 @@ public class GameCartridge {
                 }
             }
         } else {
+            System.out.println(currScene + " - " + nextScene);
             int next = this.graph.get(currScene).get(nextScene);
             return this.scenes.get(next).getAsJsonObject();
         }
