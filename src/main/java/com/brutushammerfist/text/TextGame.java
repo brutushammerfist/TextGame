@@ -155,10 +155,7 @@ public class TextGame extends Application {
                 choices.add(a);
             }
 
-            System.out.println(choices.toString());
             json.addProperty("choices", this.gson.toJson(choices));
-
-            System.out.println(choices);
 
             writer.write(this.gson.toJson(json));
             writer.close();
@@ -186,7 +183,6 @@ public class TextGame extends Application {
                 if(choices.get(i).getAsString().contains("`")) {
                     String trimmed = choices.get(i).getAsString().substring(0, choices.get(i).getAsString().lastIndexOf("`"));
                     String result = choices.get(i).getAsString().substring(choices.get(i).getAsString().lastIndexOf("`") + 1);
-                    System.out.println(result);
                     if (result.contains("win")) {
                         this.nextScene = this.game.proceed(this.nextScene.get("id").getAsString(), true);
                     } else {
