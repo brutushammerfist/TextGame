@@ -15,11 +15,11 @@ public class GameCartridge {
     private JsonObject fileJson;
     private Gson jsonConverter = new Gson();
     private JsonArray scenes;
-    private AbstractMap<String, Map<String, Integer>> graph = new HashMap<String, Map<String, Integer>>();
-    private AbstractMap<String, Map<Boolean, Integer>> combatGraph = new HashMap<String, Map<Boolean, Integer>>();
-    private JsonArray monsterJson;
-    private ArrayList<Monster> monsters = new ArrayList<Monster>();
-    private AbstractMap<String, Integer> monsterTable = new HashMap<String, Integer>();
+    private AbstractMap<String, Map<String, Integer>> graph = new HashMap<>();
+    private AbstractMap<String, Map<Boolean, Integer>> combatGraph = new HashMap<>();
+    private ArrayList<Monster> monsters = new ArrayList<>();
+    private AbstractMap<String, Integer> monsterTable = new HashMap<>();
+    private ArrayList<Item> items = new ArrayList<>();
 
     private PlayerCharacter player;
 
@@ -52,29 +52,33 @@ public class GameCartridge {
 
     // Parse JSON to create tree/graph of where options lead.
     private void parseGameData() {
-        this.scenes = this.fileJson.getAsJsonArray("scenes");
-        this.monsterJson = this.fileJson.getAsJsonArray("monsters");
-
+        // Parse player information
         JsonObject playerJson = this.fileJson.getAsJsonObject("player");
         this.player = new PlayerCharacter(playerJson.get("name").getAsString(), playerJson.get("class").getAsString(), playerJson.get("currency").getAsInt(), playerJson.get("health").getAsInt(), playerJson.get("power").getAsInt());
 
-        // Fill out lookup tables for scenes and monsters
-        AbstractMap<String, Integer> tempMap = new HashMap<String, Integer>();
+        // Parse everything else
+        this.parseMonsters();
+        this.parseScenes();
+        this.parseItems();
+        this.parseLootTables();
+    }
+
+    private void parseScenes() {
+        // Get scene list from game file
+        this.scenes = this.fileJson.getAsJsonArray("scenes");
+
+        // Create indexing for each scene in list
+        AbstractMap<String, Integer> tempMap = new HashMap<>();
         for (int i = 0; i < this.scenes.size(); i++) {
             tempMap.put(this.scenes.get(i).getAsJsonObject().get("id").getAsString(), i);
         }
 
-        for (int i = 0; i < this.monsterJson.size(); i++) {
-            JsonObject currMonster = this.monsterJson.get(i).getAsJsonObject();
-
-            this.monsterTable.put(currMonster.get("name").getAsString(), i);
-            this.monsters.add(new Monster(currMonster.get("name").getAsString(), currMonster.get("type").getAsString(), currMonster.get("health").getAsInt(), currMonster.getAsJsonArray("attacks")));
-        }
-
+        // Generate a map for which scenes lead to which
         for (int i = 0; i < this.scenes.size(); i++) {
             JsonObject currScene = this.scenes.get(i).getAsJsonObject();
 
             if (currScene.has("win")) {
+                // Generate map portion for combat
                 AbstractMap<Boolean, Integer> combatResults = new HashMap<Boolean, Integer>();
 
                 combatResults.put(true, tempMap.get(currScene.get("win").getAsString()));
@@ -82,6 +86,7 @@ public class GameCartridge {
 
                 this.combatGraph.put(currScene.get("id").getAsString(), combatResults);
             } else {
+                // Generate for non-combat
                 AbstractMap<String, Integer> results = new HashMap<String, Integer>();
 
                 for (int j = 0; j < currScene.getAsJsonArray("options").size(); j++) {
@@ -91,6 +96,60 @@ public class GameCartridge {
                 this.graph.put(currScene.get("id").getAsString(), results);
             }
         }
+    }
+
+    private void parseMonsters() {
+        JsonArray monsterJson = this.fileJson.getAsJsonArray("monsters");
+
+        for (int i = 0; i < monsterJson.size(); i++) {
+            JsonObject currMonster = monsterJson.get(i).getAsJsonObject();
+
+            this.monsterTable.put(currMonster.get("name").getAsString(), i);
+            this.monsters.add(new Monster(currMonster.get("name").getAsString(), currMonster.get("type").getAsString(), currMonster.get("health").getAsInt(), currMonster.getAsJsonArray("attacks")));
+        }
+    }
+
+    private void parseItems() {
+        JsonArray itemJson = this.fileJson.getAsJsonArray("items");
+
+        for (int i = 0; i < itemJson.size(); i++) {
+            JsonObject currItem = itemJson.get(i).getAsJsonObject();
+
+            switch (currItem.get("type").getAsString()) {
+                case "weapon":
+                    this.items.add(new Weapon(currItem.get("name").getAsString()));
+                    break;
+                case "helm":
+                    this.items.add(new Armor(currItem.get("name").getAsString(), Armor.ArmorType.HELM));
+                    break;
+                case "chest":
+                    this.items.add(new Armor(currItem.get("name").getAsString(), Armor.ArmorType.CHEST));
+                    break;
+                case "legs":
+                    this.items.add(new Armor(currItem.get("name").getAsString(), Armor.ArmorType.LEGS));
+                    break;
+                case "boots":
+                    this.items.add(new Armor(currItem.get("name").getAsString(), Armor.ArmorType.BOOTS));
+                    break;
+                case "hands":
+                    this.items.add(new Armor(currItem.get("name").getAsString(), Armor.ArmorType.HANDS));
+                    break;
+                case "consumable":
+                    break;
+                //case "bag":
+                    //break;
+                default:
+                    this.items.add(new Item(currItem.get("name").getAsString(), Item.ItemType.MISC, 0, 0));
+            }
+        }
+
+        for (int i = 0; i < this.items.size(); i++) {
+            System.out.println(this.items.get(i).getName());
+        }
+    }
+
+    private void parseLootTables() {
+
     }
 
     // Send next screen to the application based upon choice.

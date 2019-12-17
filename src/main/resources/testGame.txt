@@ -107,7 +107,17 @@
             ]
         }
     ],
-    "loottables" :{
+    "items" : [
+        {
+            "type" : "weapon",
+            "name" : "Thunderfury, the Blessed Blade of the Windseeker"
+        },
+        {
+            "type" : "helm",
+            "name" : "Helmet of the Wastes"
+        }
+    ],
+    "loottables" : {
         "beast" : [
 
         ],

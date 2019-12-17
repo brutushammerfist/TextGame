@@ -1,9 +1,14 @@
 package com.brutushammerfist.text;
 
+import java.util.ArrayList;
+
 public class Item {
-    private String name;
-    private ItemType type;
-    private int stackSize;
+    protected String name;
+    protected ItemType type;
+    protected int stackSize;
+    protected int maxStackSize;
+
+    protected ArrayList<ItemSlot.SlotType> slotTypes;
 
     public enum ItemType {
         WEAPON,
@@ -15,21 +20,26 @@ public class Item {
 
     public Item() {}
 
-    public Item(String name, ItemType type, int size) {
+    public Item(String name, ItemType type, int size, int maxSize) {
         this.name = name;
         this.type = type;
         this.stackSize = size;
+        this.maxStackSize = maxSize;
     }
 
-    private void setName(String name) { this.name = name; }
+    public void setName(String name) { this.name = name; }
 
-    private void setType(ItemType type) { this.type = type; }
+    public void setType(ItemType type) { this.type = type; }
 
-    private void setStackSize(int size) { this.stackSize = size; }
+    public void setStackSize(int size) { this.stackSize = size; }
+
+    public void setMaxSize(int size) { this.maxStackSize = size; }
 
     public String getName() { return this.name; }
 
     public ItemType getType() { return this.type; }
 
     public int getStackSize() { return this.stackSize; }
+
+    public int getMaxSize() { return this.maxStackSize; }
 }

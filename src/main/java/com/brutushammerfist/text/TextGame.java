@@ -23,7 +23,7 @@ public class TextGame extends Application {
     private GameCartridge game;
     private JsonObject nextScene;
     private Monster monster;
-    private ArrayList<String> choices = new ArrayList<String>();
+    private ArrayList<String> choices = new ArrayList<>();
     private FileChooser fileChooser = new FileChooser();
     private Gson gson = new Gson();
 

@@ -7,12 +7,36 @@ public class ItemSlot {
     public enum SlotType {
         HELM,
         CHEST,
-        PANTS,
+        LEGS,
         BOOTS,
         HANDS,
         MAIN_HAND,
         OFF_HAND,
         BAG,
-        INVENTORY;
+        ANY;
+    }
+
+    public ItemSlot(SlotType type) {
+        this.item = null;
+        this.type = type;
+    }
+
+    public ItemSlot(Item item, SlotType type) {
+        this.item = item;
+        this.type = type;
+    }
+
+    public void addItem() {
+
+    }
+
+    public Item getItem() {
+        return this.item;
+    }
+
+    public void removeItem(Item toRemove) {
+        if ((this.item.getStackSize() - toRemove.getStackSize()) >= 0) {
+            this.item.setStackSize(this.item.getStackSize() - toRemove.getStackSize());
+        }
     }
 }
