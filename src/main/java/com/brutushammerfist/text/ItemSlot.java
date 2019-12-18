@@ -26,8 +26,10 @@ public class ItemSlot {
         this.type = type;
     }
 
-    public void addItem() {
-
+    public void addItem(Item toAdd) {
+        if (this.item == null) {
+            this.item = toAdd;
+        }
     }
 
     public Item getItem() {
@@ -38,5 +40,9 @@ public class ItemSlot {
         if ((this.item.getStackSize() - toRemove.getStackSize()) >= 0) {
             this.item.setStackSize(this.item.getStackSize() - toRemove.getStackSize());
         }
+    }
+
+    public void setItem(Item item) {
+        this.item = item;
     }
 }

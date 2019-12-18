@@ -228,4 +228,6 @@ public class GameCartridge {
     String getActs() {
         return this.fileJson.getAsJsonArray("acts").get(0).toString();
     }
+
+    public ArrayList<Stat> getPlayerStats() { return this.player.getStats(); }
 }

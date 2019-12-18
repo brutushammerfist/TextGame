@@ -7,6 +7,7 @@ import com.google.gson.JsonObject;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Side;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -31,7 +32,7 @@ public class TextGame extends Application {
         this.game = new GameCartridge(filename);
     }
 
-    private void loadCombat(TextFlow flow, VBox grid) {
+    private void loadCombat(TextFlow flow, VBox grid, VBox charInventory, VBox charStats, VBox charEquip) {
         if (this.monster.getHealth() > 0 && game.getPlayerHealth() > 0) {
             grid.getChildren().clear();
 
@@ -47,7 +48,7 @@ public class TextGame extends Application {
                     Text text = new Text(monster.getText() + "\n\n\n" + String.format("The monster currently has %s health remaining.", monster.getHealth()));
                     flow.getChildren().add(text);
 
-                    loadCombat(flow, grid);
+                    loadCombat(flow, grid, charInventory, charStats, charEquip);
                 }
             });
             button.setMaxWidth(Double.MAX_VALUE);
@@ -56,17 +57,18 @@ public class TextGame extends Application {
             if (this.monster.getHealth() < 1) {
                 this.choices.add(this.nextScene.get("win").getAsString() + "`" + "win");
                 this.nextScene = game.proceed(this.nextScene.get("id").getAsString(), true);
-                loadScene(flow, grid);
+                loadScene(flow, grid, charInventory, charStats, charEquip);
             } else {
                 this.choices.add(this.nextScene.get("win").getAsString() + "`" + "lose");
                 this.nextScene = game.proceed(this.nextScene.get("id").getAsString(), false);
-                loadScene(flow, grid);
+                loadScene(flow, grid, charInventory, charStats, charEquip);
             }
             this.monster.setHealth(this.monster.getMaxHealth());
         }
     }
 
-    private void loadScene(TextFlow flow, VBox grid) {
+    private void loadScene(TextFlow flow, VBox grid, VBox charInventory, VBox charStats, VBox charEquip) {
+        this.loadCharacterInfo(charInventory, charStats, charEquip);
         if (nextScene.has("win")) {
             this.monster = this.game.getMonster(nextScene.getAsJsonArray("monsters"));
 
@@ -74,7 +76,7 @@ public class TextGame extends Application {
             flow.getChildren().add(new Text(this.monster.getText()));
             grid.getChildren().clear();
 
-            this.loadCombat(flow, grid);
+            this.loadCombat(flow, grid, charInventory, charStats, charEquip);
         } else {
             flow.getChildren().clear();
             flow.getChildren().add(new Text(nextScene.get("text").getAsString()));
@@ -89,7 +91,7 @@ public class TextGame extends Application {
                     public void handle(ActionEvent event) {
                         choices.add(options.get(finalI).getAsJsonObject().get("result").getAsString());
                         nextScene = game.proceed(nextScene.get("id").getAsString(), options.get(finalI).getAsJsonObject().get("result").getAsString());
-                        loadScene(flow, grid);
+                        loadScene(flow, grid, charInventory, charStats, charEquip);
                     }
                 });
                 button.setMaxWidth(Double.MAX_VALUE);
@@ -99,7 +101,16 @@ public class TextGame extends Application {
         }
     }
 
-    private void resetToBeginningScreen(Stage primaryStage, TextFlow flow, VBox grid) {
+    private void loadCharacterInfo(VBox charInventory, VBox charStats, VBox charEquip) {
+        ArrayList<Stat> stats = this.game.getPlayerStats();
+
+        for (Stat stat : stats) {
+            Label label = new Label(stat.getName() + ": " + stat.getLvl() + "/" + stat.getMaxLvl());
+            charStats.getChildren().add(label);
+        }
+    }
+
+    private void resetToBeginningScreen(Stage primaryStage, TextFlow flow, VBox grid, VBox charInventory, VBox charStats, VBox charEquip) {
         flow.getChildren().clear();
         grid.getChildren().clear();
         this.gameCart = null;
@@ -128,7 +139,7 @@ public class TextGame extends Application {
                 loadCartridge(gameCart);
                 primaryStage.setTitle(game.getGameTitle());
                 nextScene = game.proceed(null, (String) null);
-                loadScene(flow, grid);
+                loadScene(flow, grid, charInventory, charStats, charEquip);
             }
         });
         loadButton.setMaxWidth(Double.MAX_VALUE);
@@ -164,7 +175,7 @@ public class TextGame extends Application {
         }
     }
 
-    private void load(Stage primaryStage, TextFlow flow, VBox grid) {
+    private void load(Stage primaryStage, TextFlow flow, VBox grid, VBox charInventory, VBox charStats, VBox charEquip) {
         File filepath = this.fileChooser.showOpenDialog(primaryStage);
         String fileContents = "";
 
@@ -194,7 +205,7 @@ public class TextGame extends Application {
 
             }
 
-            this.loadScene(flow, grid);
+            this.loadScene(flow, grid, charInventory, charStats, charEquip);
         } catch (IOException e) {
             System.out.println("Game Cartridge could not be found.");
             e.printStackTrace();
@@ -210,17 +221,20 @@ public class TextGame extends Application {
         ScrollPane scroll = new ScrollPane();
         ScrollPane gridScroll = new ScrollPane();
         VBox grid = new VBox();
-        GridPane nextPrev = new GridPane();
         TextFlow flow = new TextFlow();
+        TabPane characterInfo = new TabPane();
+        VBox charInventory = new VBox();
+        VBox charStats = new VBox();
+        VBox charEquip = new VBox();
 
         final Menu fileMenu = new Menu("File");
         MenuItem restart = new MenuItem("Close current game");
         restart.setOnAction(event -> {
-            this.resetToBeginningScreen(primaryStage, flow, grid);
+            this.resetToBeginningScreen(primaryStage, flow, grid, charInventory, charStats, charEquip);
         });
         MenuItem load = new MenuItem("Load Save");
         load.setOnAction(event -> {
-            this.load(primaryStage, flow, grid);
+            this.load(primaryStage, flow, grid, charInventory, charStats, charEquip);
         });
         MenuItem save = new MenuItem("Save Game");
         save.setOnAction(event -> {
@@ -230,25 +244,23 @@ public class TextGame extends Application {
 
         final Menu optionsMenu = new Menu("Options");
 
-
         final Menu helpMenu = new Menu("Help");
-
 
         MenuBar menuBar = new MenuBar();
         menuBar.getMenus().addAll(fileMenu, optionsMenu, helpMenu);
 
-        scroll.minWidthProperty().bind(primaryStage.widthProperty().multiply(0.99));
-        scroll.maxWidthProperty().bind(primaryStage.widthProperty().multiply(0.99));
+        scroll.minWidthProperty().bind(primaryStage.widthProperty().multiply(0.74));
+        scroll.maxWidthProperty().bind(primaryStage.widthProperty().multiply(0.74));
         scroll.minHeightProperty().bind(primaryStage.heightProperty().multiply(0.70));
         scroll.maxHeightProperty().bind(primaryStage.heightProperty().multiply(0.70));
-        gridScroll.minWidthProperty().bind(primaryStage.widthProperty().multiply(0.75));
-        gridScroll.maxWidthProperty().bind(primaryStage.widthProperty().multiply(0.75));
+        gridScroll.minWidthProperty().bind(primaryStage.widthProperty().multiply(0.74));
+        gridScroll.maxWidthProperty().bind(primaryStage.widthProperty().multiply(0.74));
         gridScroll.minHeightProperty().bind(primaryStage.heightProperty().multiply(0.2425));
         gridScroll.maxHeightProperty().bind(primaryStage.heightProperty().multiply(0.2425));
-        nextPrev.minWidthProperty().bind(primaryStage.widthProperty().multiply(0.24));
-        nextPrev.maxWidthProperty().bind(primaryStage.widthProperty().multiply(0.24));
-        nextPrev.minHeightProperty().bind(primaryStage.heightProperty().multiply(0.2425));
-        nextPrev.maxHeightProperty().bind(primaryStage.heightProperty().multiply(0.2425));
+        characterInfo.minWidthProperty().bind(primaryStage.widthProperty().multiply(0.24));
+        characterInfo.maxWidthProperty().bind(primaryStage.widthProperty().multiply(0.24));
+        characterInfo.minHeightProperty().bind(primaryStage.heightProperty().multiply(0.2425));
+        characterInfo.maxHeightProperty().bind(primaryStage.heightProperty().multiply(0.2425));
 
         flow.minWidthProperty().bind(scroll.widthProperty().multiply(0.99));
         flow.maxWidthProperty().bind(scroll.widthProperty().multiply(0.99));
@@ -279,7 +291,7 @@ public class TextGame extends Application {
                 loadCartridge(gameCart);
                 primaryStage.setTitle(game.getGameTitle());
                 nextScene = game.proceed(null, (String) null);
-                loadScene(flow, grid);
+                loadScene(flow, grid, charInventory, charStats, charEquip);
             }
         });
         loadButton.setMaxWidth(Double.MAX_VALUE);
@@ -289,14 +301,15 @@ public class TextGame extends Application {
         grid.getChildren().add(loadButton);
         grid.setFillWidth(true);
 
-        nextPrev.setHgap(10.0);
-        nextPrev.setVgap(10.0);
-        nextPrev.add(new Button("Previous"), 0, 0);
-        nextPrev.add(new Button("Next"), 0, 1);
+        Tab inventory = new Tab("Inventory", charInventory);
+        Tab stats = new Tab("Stats", charStats);
+        Tab equipment = new Tab("Equipment", charEquip);
+
+        characterInfo.getTabs().addAll(inventory, stats, equipment);
 
         gameRoot.add(scroll, 0, 0, 6, 6);
         gameRoot.add(gridScroll, 0, 7, 1, 1);
-        gameRoot.add(nextPrev, 1, 7, 1, 1);
+        gameRoot.add(characterInfo, 1, 0, 1, 1);
 
         root.getChildren().addAll(menuBar, gameRoot);
 

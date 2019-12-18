@@ -1,5 +1,7 @@
 package com.brutushammerfist.text;
 
+import java.util.ArrayList;
+
 public class PlayerCharacter {
     private String name;
     private String playClass;
@@ -7,6 +9,12 @@ public class PlayerCharacter {
     private int health;
     private int maxHealth;
     private int power;
+
+    private Stat str;
+    private Stat dex;
+    private Stat con;
+    private Stat intel;
+    private Stat cha;
 
     private ItemSlot helm;
     private ItemSlot chest;
@@ -29,6 +37,12 @@ public class PlayerCharacter {
         this.offHand = new ItemSlot(ItemSlot.SlotType.OFF_HAND);
         this.bag = new ItemSlot(ItemSlot.SlotType.BAG);
 
+        this.str = new Stat("Strength", 0, 0);
+        this.dex = new Stat("Dexterity", 0, 0);
+        this.con = new Stat("Constitution", 0, 0);
+        this.intel = new Stat("Intelligence", 0, 0);
+        this.cha = new Stat("Charisma", 0, 0);
+
         this.inventory = new Inventory();
     }
 
@@ -48,6 +62,12 @@ public class PlayerCharacter {
         this.mainHand = new ItemSlot(ItemSlot.SlotType.MAIN_HAND);
         this.offHand = new ItemSlot(ItemSlot.SlotType.OFF_HAND);
         this.bag = new ItemSlot(ItemSlot.SlotType.BAG);
+
+        this.str = new Stat("Strength", 0, 0);
+        this.dex = new Stat("Dexterity", 0, 0);
+        this.con = new Stat("Constitution", 0, 0);
+        this.intel = new Stat("Intelligence", 0, 0);
+        this.cha = new Stat("Charisma", 0, 0);
 
         this.inventory = new Inventory();
     }
@@ -70,4 +90,56 @@ public class PlayerCharacter {
         this.inventory.addItem(toAdd);
     }
 
+    public void equip(Item toEquip) {
+        switch (toEquip.getType()) {
+            case ARMOR:
+                switch (toEquip.getSecondaryType()) {
+                    case HELM:
+                        if (this.helm.getItem() == null) {
+                            this.helm.setItem(toEquip);
+                        }
+                        break;
+                    case CHEST:
+                        if (this.chest.getItem() == null) {
+                            this.chest.setItem(toEquip);
+                        }
+                        break;
+                    case LEGS:
+                        if (this.legs.getItem() == null) {
+                            this.chest.setItem(toEquip);
+                        }
+                        break;
+                    case HANDS:
+                        if (this.hands.getItem() == null) {
+                            this.hands.setItem(toEquip);
+                        }
+                        break;
+                    case BOOTS:
+                        if (this.boots.getItem() == null) {
+                            this.hands.setItem(toEquip);
+                        }
+                        break;
+                }
+                break;
+            case WEAPON:
+                if (this.mainHand.getItem() == null) {
+                    this.mainHand.setItem(toEquip);
+                } else if (this.offHand.getItem() == null) {
+                    this.offHand.setItem(toEquip);
+                }
+                break;
+        }
+    }
+
+    public ArrayList<Stat> getStats() {
+        ArrayList<Stat> tempList = new ArrayList<>();
+
+        tempList.add(this.str);
+        tempList.add(this.dex);
+        tempList.add(this.con);
+        tempList.add(this.intel);
+        tempList.add(this.cha);
+
+        return tempList;
+    }
 }

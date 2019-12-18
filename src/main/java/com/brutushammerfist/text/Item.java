@@ -10,6 +10,8 @@ public class Item {
 
     protected ArrayList<ItemSlot.SlotType> slotTypes;
 
+    public ItemSlot.SlotType getSecondaryType() { return ItemSlot.SlotType.ANY; }
+
     public enum ItemType {
         WEAPON,
         CONSUMABLE,

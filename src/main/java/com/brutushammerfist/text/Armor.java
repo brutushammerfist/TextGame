@@ -41,4 +41,14 @@ public class Armor extends Item {
         }
         this.type = ItemType.ARMOR;
     }
+
+    @Override
+    public ItemSlot.SlotType getSecondaryType() {
+        for (ItemSlot.SlotType type : this.slotTypes) {
+            if (type != ItemSlot.SlotType.ANY) {
+                return type;
+            }
+        }
+        return null;
+    }
 }
