@@ -18,6 +18,7 @@ import javafx.stage.Stage;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 public class TextGame extends Application {
     private File gameCart;
@@ -32,7 +33,7 @@ public class TextGame extends Application {
         this.game = new GameCartridge(filename);
     }
 
-    private void loadCombat(TextFlow flow, VBox grid, VBox charInventory, VBox charStats, VBox charEquip) {
+    private void loadCombat(TextFlow flow, VBox grid, VBox overview, VBox charInventory, VBox charStats, VBox charEquip) {
         if (this.monster.getHealth() > 0 && game.getPlayerHealth() > 0) {
             grid.getChildren().clear();
 
@@ -41,14 +42,17 @@ public class TextGame extends Application {
                 @Override
                 public void handle(ActionEvent event) {
                     monster.takeDamage(game.playerAttack());
-                    JsonObject attack = monster.getAttack();
-                    game.damagePlayer(attack.get("power").getAsInt());
+					int damage = monster.attack();
+					game.damagePlayer(damage);
+					
+					String unformattedText = monster.getText() + "\n\n\nThe monster currently has %s health remaiing.";
 
                     flow.getChildren().clear();
-                    Text text = new Text(monster.getText() + "\n\n\n" + String.format("The monster currently has %s health remaining.", monster.getHealth()));
+                    //Text text = new Text(monster.getText() + "\n\n\n" + String.format("The monster currently has %s health remaining.", monster.getHealth()));
+                    Text text = new Text(String.format(unformattedText, damage, monster.getHealth()));
                     flow.getChildren().add(text);
 
-                    loadCombat(flow, grid, charInventory, charStats, charEquip);
+                    loadCombat(flow, grid, overview, charInventory, charStats, charEquip);
                 }
             });
             button.setMaxWidth(Double.MAX_VALUE);
@@ -57,26 +61,27 @@ public class TextGame extends Application {
             if (this.monster.getHealth() < 1) {
                 this.choices.add(this.nextScene.get("win").getAsString() + "`" + "win");
                 this.nextScene = game.proceed(this.nextScene.get("id").getAsString(), true);
-                loadScene(flow, grid, charInventory, charStats, charEquip);
+                loadScene(flow, grid, overview, charInventory, charStats, charEquip);
             } else {
                 this.choices.add(this.nextScene.get("win").getAsString() + "`" + "lose");
                 this.nextScene = game.proceed(this.nextScene.get("id").getAsString(), false);
-                loadScene(flow, grid, charInventory, charStats, charEquip);
+                loadScene(flow, grid, overview, charInventory, charStats, charEquip);
             }
             this.monster.setHealth(this.monster.getMaxHealth());
         }
     }
 
-    private void loadScene(TextFlow flow, VBox grid, VBox charInventory, VBox charStats, VBox charEquip) {
-        this.loadCharacterInfo(charInventory, charStats, charEquip);
+    private void loadScene(TextFlow flow, VBox grid, VBox overview, VBox charInventory, VBox charStats, VBox charEquip) {
+        this.loadCharacterInfo(overview, charInventory, charStats, charEquip);
         if (nextScene.has("win")) {
             this.monster = this.game.getMonster(nextScene.getAsJsonArray("monsters"));
 
             flow.getChildren().clear();
+			// This comment fixes a null pointer exception for getting text in the line below? Will not work without comment here.
             flow.getChildren().add(new Text(this.monster.getText()));
             grid.getChildren().clear();
 
-            this.loadCombat(flow, grid, charInventory, charStats, charEquip);
+            this.loadCombat(flow, grid, overview, charInventory, charStats, charEquip);
         } else {
             flow.getChildren().clear();
             flow.getChildren().add(new Text(nextScene.get("text").getAsString()));
@@ -91,7 +96,7 @@ public class TextGame extends Application {
                     public void handle(ActionEvent event) {
                         choices.add(options.get(finalI).getAsJsonObject().get("result").getAsString());
                         nextScene = game.proceed(nextScene.get("id").getAsString(), options.get(finalI).getAsJsonObject().get("result").getAsString());
-                        loadScene(flow, grid, charInventory, charStats, charEquip);
+                        loadScene(flow, grid, overview, charInventory, charStats, charEquip);
                     }
                 });
                 button.setMaxWidth(Double.MAX_VALUE);
@@ -101,16 +106,21 @@ public class TextGame extends Application {
         }
     }
 
-    private void loadCharacterInfo(VBox charInventory, VBox charStats, VBox charEquip) {
-        ArrayList<Stat> stats = this.game.getPlayerStats();
+    private void loadCharacterInfo(VBox overview, VBox charInventory, VBox charStats, VBox charEquip) {
+        Label health = new Label("Health: " + Integer.toString(this.game.getPlayerHealth()) + "/" + Integer.toString(this.game.getPlayerMaxHealth()));
+		overview.getChildren().add(health);
+		
+		ArrayList<Stat> stats = this.game.getPlayerStats();
 
-        for (Stat stat : stats) {
+        charStats.getChildren().clear();
+		
+		for (Stat stat : stats) {
             Label label = new Label(stat.getName() + ": " + stat.getLvl() + "/" + stat.getMaxLvl());
             charStats.getChildren().add(label);
         }
     }
 
-    private void resetToBeginningScreen(Stage primaryStage, TextFlow flow, VBox grid, VBox charInventory, VBox charStats, VBox charEquip) {
+    private void resetToBeginningScreen(Stage primaryStage, TextFlow flow, VBox grid, VBox overview, VBox charInventory, VBox charStats, VBox charEquip) {
         flow.getChildren().clear();
         grid.getChildren().clear();
         this.gameCart = null;
@@ -139,7 +149,7 @@ public class TextGame extends Application {
                 loadCartridge(gameCart);
                 primaryStage.setTitle(game.getGameTitle());
                 nextScene = game.proceed(null, (String) null);
-                loadScene(flow, grid, charInventory, charStats, charEquip);
+                loadScene(flow, grid, overview, charInventory, charStats, charEquip);
             }
         });
         loadButton.setMaxWidth(Double.MAX_VALUE);
@@ -175,7 +185,7 @@ public class TextGame extends Application {
         }
     }
 
-    private void load(Stage primaryStage, TextFlow flow, VBox grid, VBox charInventory, VBox charStats, VBox charEquip) {
+    private void load(Stage primaryStage, TextFlow flow, VBox grid, VBox overview, VBox charInventory, VBox charStats, VBox charEquip) {
         File filepath = this.fileChooser.showOpenDialog(primaryStage);
         String fileContents = "";
 
@@ -205,7 +215,7 @@ public class TextGame extends Application {
 
             }
 
-            this.loadScene(flow, grid, charInventory, charStats, charEquip);
+            this.loadScene(flow, grid, overview, charInventory, charStats, charEquip);
         } catch (IOException e) {
             System.out.println("Game Cartridge could not be found.");
             e.printStackTrace();
@@ -223,6 +233,7 @@ public class TextGame extends Application {
         VBox grid = new VBox();
         TextFlow flow = new TextFlow();
         TabPane characterInfo = new TabPane();
+		VBox overView = new VBox();
         VBox charInventory = new VBox();
         VBox charStats = new VBox();
         VBox charEquip = new VBox();
@@ -230,11 +241,11 @@ public class TextGame extends Application {
         final Menu fileMenu = new Menu("File");
         MenuItem restart = new MenuItem("Close current game");
         restart.setOnAction(event -> {
-            this.resetToBeginningScreen(primaryStage, flow, grid, charInventory, charStats, charEquip);
+            this.resetToBeginningScreen(primaryStage, flow, grid, overView, charInventory, charStats, charEquip);
         });
         MenuItem load = new MenuItem("Load Save");
         load.setOnAction(event -> {
-            this.load(primaryStage, flow, grid, charInventory, charStats, charEquip);
+            this.load(primaryStage, flow, grid, overView, charInventory, charStats, charEquip);
         });
         MenuItem save = new MenuItem("Save Game");
         save.setOnAction(event -> {
@@ -291,7 +302,7 @@ public class TextGame extends Application {
                 loadCartridge(gameCart);
                 primaryStage.setTitle(game.getGameTitle());
                 nextScene = game.proceed(null, (String) null);
-                loadScene(flow, grid, charInventory, charStats, charEquip);
+                loadScene(flow, grid, overView, charInventory, charStats, charEquip);
             }
         });
         loadButton.setMaxWidth(Double.MAX_VALUE);
@@ -301,11 +312,12 @@ public class TextGame extends Application {
         grid.getChildren().add(loadButton);
         grid.setFillWidth(true);
 
+		Tab overview = new Tab("Overview", overView);
         Tab inventory = new Tab("Inventory", charInventory);
         Tab stats = new Tab("Stats", charStats);
         Tab equipment = new Tab("Equipment", charEquip);
 
-        characterInfo.getTabs().addAll(inventory, stats, equipment);
+        characterInfo.getTabs().addAll(overview, inventory, stats, equipment);
 
         gameRoot.add(scroll, 0, 0, 6, 6);
         gameRoot.add(gridScroll, 0, 7, 1, 1);

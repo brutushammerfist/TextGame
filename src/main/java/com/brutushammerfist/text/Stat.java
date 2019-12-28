@@ -12,6 +12,12 @@ public class Stat {
         this.lvl = lvl;
         this.maxLvl = maxLvl;
     }
+	
+	public Stat(Stat orig) {
+		this.name = orig.getName();
+		this.lvl = orig.getLvl();
+		this.maxLvl = orig.getMaxLvl();
+	}
 
     public String getName() { return this.name; }
 

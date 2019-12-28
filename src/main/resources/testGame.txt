@@ -8,7 +8,11 @@
         "class" : "Warrior",
         "currency" : "200",
         "health" : "500",
-        "power" : "15"
+        "power" : "15",
+		"stats" : [
+			"Strength",
+			"Dexterity"
+		]
     },
     "scenes" : [
         {
@@ -75,16 +79,37 @@
             "type" : "beast",
             "health" : "100",
             "loot" : "beast",
+			"stats" : [
+				{
+					"stat" : "Strength",
+					"lvl" : "25"
+				},
+				{
+					"stat" : "Dexterity",
+					"lvl" : "55"
+				}
+			],
+			"attackMods" : [
+				"Strength",
+				"Dexterity"
+			],
             "attacks" : [
                 {
                     "name" : "claw",
                     "text" : "The bear cub swipes at you with its claws. This deals %s damage!",
-                    "power" : "5"
+                    "base" : "5",
+					"mods" : [
+						"Strength"
+					]
                 },
                 {
                     "name" : "pounce",
                     "text" : "The bear cub pounces at you, dealing %s damage with its heft!",
-                    "power" : "10"
+                    "base" : "10",
+					"mods" : [
+						"Strength",
+						"Dexterity"
+					]
                 }
             ]
         },
@@ -93,16 +118,35 @@
             "type" : "undead",
             "health" : "100",
             "loot" : "undead",
+			"stats" : [
+				{
+					"stat" : "Strength",
+					"lvl" : "75"
+				},
+				{
+					"stat" : "Dexterity",
+					"lvl" : "5"
+				}
+			],
+			"attackMods" : [
+				"Strength"
+			],
             "attacks" : [
                 {
                     "name" : "bite",
                     "text" : "The zombie bites into your flesh, ripping a piece off and chewing it. This deals %s damage!",
-                    "power" : "15"
+                    "base" : "15",
+					"mods" : [
+						"Strength"
+					]
                 },
                 {
                     "name" : "scratch",
                     "text" : "The diseased nails of the undead dig into your skin, dealing %s damage!",
-                    "power" : "10"
+                    "base" : "10",
+					"mods" : [
+						"Dexterity"
+					]
                 }
             ]
         }
@@ -110,13 +154,25 @@
     "items" : [
         {
             "type" : "weapon",
-            "name" : "Thunderfury, the Blessed Blade of the Windseeker"
+            "name" : "Thunderfury, the Blessed Blade of the Windseeker",
+			"description" : "A blade."
         },
         {
             "type" : "helm",
-            "name" : "Helmet of the Wastes"
+            "name" : "Helmet of the Wastes",
+			"description" : "A helmet."
         }
     ],
+	"stats" : [
+		{
+			"name" : "Strength",
+			"maxLvl" : "100"
+		},
+		{
+			"name" : "Dexterity",
+			"maxLvl" : "100"
+		}
+	],
     "loottables" : {
         "beast" : [
 

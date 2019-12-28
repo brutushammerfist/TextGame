@@ -11,10 +11,11 @@ public class Armor extends Item {
         HANDS
     }
 
-    public Armor(String name, ArmorType type) {
+    public Armor(String name, ArmorType type, String description) {
         this.name = name;
         this.stackSize = 1;
         this.maxStackSize = 1;
+		this.description = description;
 
         this.slotTypes = new ArrayList<>();
         switch (type) {

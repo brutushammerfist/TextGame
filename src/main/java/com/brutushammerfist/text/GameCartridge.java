@@ -11,17 +11,32 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 public class GameCartridge {
+	// File Parsing Variables
     private String fileContents;
     private JsonObject fileJson;
     private Gson jsonConverter = new Gson();
+	
+	// Scene Variables
     private JsonArray scenes;
     private AbstractMap<String, Map<String, Integer>> graph = new HashMap<>();
+	
+	// Combat Scene Variables
     private AbstractMap<String, Map<Boolean, Integer>> combatGraph = new HashMap<>();
+	
+	// Monster Variables
     private ArrayList<Monster> monsters = new ArrayList<>();
     private AbstractMap<String, Integer> monsterTable = new HashMap<>();
+	
+	// Item Variables
     private ArrayList<Item> items = new ArrayList<>();
 
+	// Player Variables
     private PlayerCharacter player;
+	
+	// Stats Variables
+	//private ArrayList<Stat> stats = new ArrayList<>();
+	private AbstractMap<String, Stat> stats = new HashMap<>();
+	
 
     public GameCartridge() {}
 
@@ -55,12 +70,19 @@ public class GameCartridge {
         // Parse player information
         JsonObject playerJson = this.fileJson.getAsJsonObject("player");
         this.player = new PlayerCharacter(playerJson.get("name").getAsString(), playerJson.get("class").getAsString(), playerJson.get("currency").getAsInt(), playerJson.get("health").getAsInt(), playerJson.get("power").getAsInt());
-
-        // Parse everything else
+		
+		// Parse everything else
+		this.parseStats();
         this.parseMonsters();
         this.parseScenes();
         this.parseItems();
-        this.parseLootTables();
+        this.parseLootTables();		
+		
+		// Parse player stats, now that stats are loaded
+		JsonArray playerStats = playerJson.getAsJsonArray("stats");
+        for (int i = 0; i < playerStats.size(); i++) {
+			this.player.addStat(new Stat(this.stats.get(playerStats.get(i).getAsString())));
+		}
     }
 
     private void parseScenes() {
@@ -106,7 +128,12 @@ public class GameCartridge {
 
             this.monsterTable.put(currMonster.get("name").getAsString(), i);
             this.monsters.add(new Monster(currMonster.get("name").getAsString(), currMonster.get("type").getAsString(), currMonster.get("health").getAsInt(), currMonster.getAsJsonArray("attacks")));
-        }
+			
+			JsonArray currMonsterStats = currMonster.getAsJsonArray("stats");
+			for (int j = 0; j < currMonsterStats.size(); j++) {
+				this.monsters.get(i).addStat(new Stat(currMonsterStats.get(j).getAsJsonObject().get("stat").getAsString(), currMonsterStats.get(j).getAsJsonObject().get("lvl").getAsInt(), this.stats.get(currMonsterStats.get(j).getAsJsonObject().get("stat").getAsString()).getMaxLvl()));
+			}
+		}
     }
 
     private void parseItems() {
@@ -117,40 +144,48 @@ public class GameCartridge {
 
             switch (currItem.get("type").getAsString()) {
                 case "weapon":
-                    this.items.add(new Weapon(currItem.get("name").getAsString()));
+                    this.items.add(new Weapon(currItem.get("name").getAsString(), currItem.get("description").getAsString()));
                     break;
                 case "helm":
-                    this.items.add(new Armor(currItem.get("name").getAsString(), Armor.ArmorType.HELM));
+                    this.items.add(new Armor(currItem.get("name").getAsString(), Armor.ArmorType.HELM, currItem.get("description").getAsString()));
                     break;
                 case "chest":
-                    this.items.add(new Armor(currItem.get("name").getAsString(), Armor.ArmorType.CHEST));
+                    this.items.add(new Armor(currItem.get("name").getAsString(), Armor.ArmorType.CHEST, currItem.get("description").getAsString()));
                     break;
                 case "legs":
-                    this.items.add(new Armor(currItem.get("name").getAsString(), Armor.ArmorType.LEGS));
+                    this.items.add(new Armor(currItem.get("name").getAsString(), Armor.ArmorType.LEGS, currItem.get("description").getAsString()));
                     break;
                 case "boots":
-                    this.items.add(new Armor(currItem.get("name").getAsString(), Armor.ArmorType.BOOTS));
+                    this.items.add(new Armor(currItem.get("name").getAsString(), Armor.ArmorType.BOOTS, currItem.get("description").getAsString()));
                     break;
                 case "hands":
-                    this.items.add(new Armor(currItem.get("name").getAsString(), Armor.ArmorType.HANDS));
+                    this.items.add(new Armor(currItem.get("name").getAsString(), Armor.ArmorType.HANDS, currItem.get("description").getAsString()));
                     break;
                 case "consumable":
                     break;
                 //case "bag":
                     //break;
                 default:
-                    this.items.add(new Item(currItem.get("name").getAsString(), Item.ItemType.MISC, 0, 0));
+                    this.items.add(new Item(currItem.get("name").getAsString(), Item.ItemType.MISC, 0, 0, currItem.get("description").getAsString()));
             }
-        }
-
-        for (int i = 0; i < this.items.size(); i++) {
-            System.out.println(this.items.get(i).getName());
         }
     }
 
     private void parseLootTables() {
 
     }
+	
+	private void parseStats() {
+		JsonArray statsJson = this.fileJson.getAsJsonArray("stats");
+		
+		for (int i = 0; i < statsJson.size(); i++) {
+			JsonObject currStat = statsJson.get(i).getAsJsonObject();
+			
+			//this.stats.add(new Stat(currStat.get("name").getAsString(), 0, currStat.get("maxLvl").getAsInt()));
+			
+			this.stats.put(currStat.get("name").getAsString(), new Stat(currStat.get("name").getAsString(), 0, currStat.get("maxLvl").getAsInt()));
+		}
+	}
 
     // Send next screen to the application based upon choice.
     JsonObject proceed(String currScene, String nextScene) {
@@ -192,6 +227,10 @@ public class GameCartridge {
     int getPlayerHealth() {
         return this.player.getHealth();
     }
+	
+	int getPlayerMaxHealth() {
+		return this.player.getMaxHealth();
+	}
 
     public void damagePlayer(int dmg) {
         this.player.takeDamage(dmg);

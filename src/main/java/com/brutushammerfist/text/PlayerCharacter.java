@@ -1,6 +1,6 @@
 package com.brutushammerfist.text;
 
-import java.util.ArrayList;
+import java.util.*;
 
 public class PlayerCharacter {
     private String name;
@@ -9,12 +9,8 @@ public class PlayerCharacter {
     private int health;
     private int maxHealth;
     private int power;
-
-    private Stat str;
-    private Stat dex;
-    private Stat con;
-    private Stat intel;
-    private Stat cha;
+	
+	private AbstractMap<String, Stat> stats = new HashMap<>();
 
     private ItemSlot helm;
     private ItemSlot chest;
@@ -37,12 +33,6 @@ public class PlayerCharacter {
         this.offHand = new ItemSlot(ItemSlot.SlotType.OFF_HAND);
         this.bag = new ItemSlot(ItemSlot.SlotType.BAG);
 
-        this.str = new Stat("Strength", 0, 0);
-        this.dex = new Stat("Dexterity", 0, 0);
-        this.con = new Stat("Constitution", 0, 0);
-        this.intel = new Stat("Intelligence", 0, 0);
-        this.cha = new Stat("Charisma", 0, 0);
-
         this.inventory = new Inventory();
     }
 
@@ -63,12 +53,6 @@ public class PlayerCharacter {
         this.offHand = new ItemSlot(ItemSlot.SlotType.OFF_HAND);
         this.bag = new ItemSlot(ItemSlot.SlotType.BAG);
 
-        this.str = new Stat("Strength", 0, 0);
-        this.dex = new Stat("Dexterity", 0, 0);
-        this.con = new Stat("Constitution", 0, 0);
-        this.intel = new Stat("Intelligence", 0, 0);
-        this.cha = new Stat("Charisma", 0, 0);
-
         this.inventory = new Inventory();
     }
 
@@ -85,6 +69,8 @@ public class PlayerCharacter {
     public int attack() { return this.power; }
 
     public int getHealth() { return this.health; }
+	
+	public int getMaxHealth() { return this.maxHealth; }
 
     public void addItem(Item toAdd) {
         this.inventory.addItem(toAdd);
@@ -133,13 +119,18 @@ public class PlayerCharacter {
 
     public ArrayList<Stat> getStats() {
         ArrayList<Stat> tempList = new ArrayList<>();
-
-        tempList.add(this.str);
-        tempList.add(this.dex);
-        tempList.add(this.con);
-        tempList.add(this.intel);
-        tempList.add(this.cha);
-
-        return tempList;
+		
+		Set<String> keys = this.stats.keySet();
+		String[] keysArray = keys.toArray(new String[0]);
+		
+		for (String key : keysArray) {
+			tempList.add(this.stats.get(key));
+		}
+		
+		return tempList;
     }
+	
+	public void addStat(Stat toAdd) {
+		this.stats.put(toAdd.getName(), toAdd);
+	}
 }

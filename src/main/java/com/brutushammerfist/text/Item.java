@@ -7,6 +7,7 @@ public class Item {
     protected ItemType type;
     protected int stackSize;
     protected int maxStackSize;
+	protected String description;
 
     protected ArrayList<ItemSlot.SlotType> slotTypes;
 
@@ -22,11 +23,12 @@ public class Item {
 
     public Item() {}
 
-    public Item(String name, ItemType type, int size, int maxSize) {
+    public Item(String name, ItemType type, int size, int maxSize, String description) {
         this.name = name;
         this.type = type;
         this.stackSize = size;
         this.maxStackSize = maxSize;
+		this.description = description;
     }
 
     public void setName(String name) { this.name = name; }
