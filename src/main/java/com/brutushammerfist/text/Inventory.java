@@ -60,4 +60,28 @@ public class Inventory {
             }
         }
     }
+	
+	public int getMaxSize() {
+		return this.maxSize;
+	}
+	
+	public int size() {
+		return this.inventory.size();
+	}
+	
+	public Item findItem(String name) {
+		for (int i = 0; i < this.inventory.size(); i++) {
+			if (this.inventory.get(i).getItem().getName() == name) {
+				return this.inventory.get(i).getItem();
+			}
+		}
+		return null;
+	}
+	
+	public ItemSlot get(int index) {
+		if (this.inventory.size() == 0) {
+			return null;
+		}
+		return this.inventory.get(index);
+	}
 }

@@ -13,7 +13,6 @@ public class Monster{
     private int health;
     private int maxHealth;
     private JsonArray attacks;
-	private JsonArray attackMods;
 	
 	private AbstractMap<String, Stat> stats = new HashMap<>();
 

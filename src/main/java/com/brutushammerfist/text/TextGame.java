@@ -34,29 +34,32 @@ public class TextGame extends Application {
     }
 
     private void loadCombat(TextFlow flow, VBox grid, VBox overview, VBox charInventory, VBox charStats, VBox charEquip) {
+		this.loadCharacterInfo(overview, charInventory, charStats, charEquip);
         if (this.monster.getHealth() > 0 && game.getPlayerHealth() > 0) {
             grid.getChildren().clear();
-
-            Button button = new Button("Attack");
-            button.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-                    monster.takeDamage(game.playerAttack());
-					int damage = monster.attack();
-					game.damagePlayer(damage);
-					
-					String unformattedText = monster.getText() + "\n\n\nThe monster currently has %s health remaiing.";
-
-                    flow.getChildren().clear();
-                    //Text text = new Text(monster.getText() + "\n\n\n" + String.format("The monster currently has %s health remaining.", monster.getHealth()));
-                    Text text = new Text(String.format(unformattedText, damage, monster.getHealth()));
-                    flow.getChildren().add(text);
-
-                    loadCombat(flow, grid, overview, charInventory, charStats, charEquip);
-                }
-            });
-            button.setMaxWidth(Double.MAX_VALUE);
-            grid.getChildren().add(button);
+			
+			for (int i = 0; i < this.game.getPlayerAttacks().size(); i++) {
+				final String atkName = this.game.getPlayerAttacks().get(i).getAsJsonObject().get("name").getAsString();
+				Button button = new Button(atkName);
+				button.setOnAction(new EventHandler<ActionEvent>() {
+					@Override
+					public void handle(ActionEvent event) {
+						monster.takeDamage(game.playerAttackDamage(atkName));
+						int damage = monster.attack();
+						game.damagePlayer(damage);
+						
+						String unformattedText = monster.getText() + "\n\n\nYour attack does %s damage!\n\n\nThe foe currently has %s health remaining.";
+						
+						flow.getChildren().clear();
+						Text text = new Text(String.format(unformattedText, damage, game.playerAttackDamage(atkName), monster.getHealth()));
+						flow.getChildren().add(text);
+						
+						loadCombat(flow, grid, overview, charInventory, charStats, charEquip);
+					}
+				});
+				button.setMaxWidth(Double.MAX_VALUE);
+				grid.getChildren().add(button);
+			}
         } else {
             if (this.monster.getHealth() < 1) {
                 this.choices.add(this.nextScene.get("win").getAsString() + "`" + "win");
@@ -107,6 +110,7 @@ public class TextGame extends Application {
     }
 
     private void loadCharacterInfo(VBox overview, VBox charInventory, VBox charStats, VBox charEquip) {
+		overview.getChildren().clear();
         Label health = new Label("Health: " + Integer.toString(this.game.getPlayerHealth()) + "/" + Integer.toString(this.game.getPlayerMaxHealth()));
 		overview.getChildren().add(health);
 		
@@ -118,6 +122,35 @@ public class TextGame extends Application {
             Label label = new Label(stat.getName() + ": " + stat.getLvl() + "/" + stat.getMaxLvl());
             charStats.getChildren().add(label);
         }
+		
+		for (int i = 0; i < game.getPlayerInv().getMaxSize(); i++) {
+			if (game.getPlayerInv().get(i) != null) {
+				final String itemName = game.getPlayerInv().get(i).getItem().getName();
+				final int finalI = i;
+				Button item = new Button(itemName);
+				if (game.getPlayerInv().get(i).getItem().getType() == Item.ItemType.WEAPON) {
+					item.setOnAction(new EventHandler<ActionEvent>() {
+						@Override
+						public void handle(ActionEvent event) {
+							game.playerEquip(itemName);
+							game.removePlayerItem(game.getPlayerInv().get(finalI).getItem());
+						}
+					});
+				} else if (game.getPlayerInv().get(i).getItem().getType() == Item.ItemType.ARMOR) {
+					item.setOnAction(new EventHandler<ActionEvent>() {
+						@Override
+						public void handle(ActionEvent event) {
+							game.playerEquip(itemName);
+							game.removePlayerItem(game.getPlayerInv().get(finalI).getItem());
+						}
+					});
+				}
+				charInventory.getChildren().add(item);
+			} else {
+				Button item = new Button("Empty.");
+				charInventory.getChildren().add(item);
+			}
+		}
     }
 
     private void resetToBeginningScreen(Stage primaryStage, TextFlow flow, VBox grid, VBox overview, VBox charInventory, VBox charStats, VBox charEquip) {
@@ -233,10 +266,13 @@ public class TextGame extends Application {
         VBox grid = new VBox();
         TextFlow flow = new TextFlow();
         TabPane characterInfo = new TabPane();
+		characterInfo.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
 		VBox overView = new VBox();
         VBox charInventory = new VBox();
         VBox charStats = new VBox();
         VBox charEquip = new VBox();
+		
+		CartridgeBuilder builder = new CartridgeBuilder();
 
         final Menu fileMenu = new Menu("File");
         MenuItem restart = new MenuItem("Close current game");
@@ -251,7 +287,11 @@ public class TextGame extends Application {
         save.setOnAction(event -> {
             this.save(primaryStage);
         });
-        fileMenu.getItems().addAll(restart, load, save);
+		MenuItem build = new MenuItem("Open Builder");
+		build.setOnAction(event -> {
+			builder.start(new Stage());
+		});
+        fileMenu.getItems().addAll(restart, load, save, build);
 
         final Menu optionsMenu = new Menu("Options");
 

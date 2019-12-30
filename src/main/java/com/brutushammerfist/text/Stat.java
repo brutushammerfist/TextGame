@@ -24,4 +24,6 @@ public class Stat {
     public int getLvl() { return this.lvl; }
 
     public int getMaxLvl() { return this.maxLvl; }
+	
+	public void addLvl(int lvl) { this.lvl += lvl; }
 }

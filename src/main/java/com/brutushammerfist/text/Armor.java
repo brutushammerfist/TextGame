@@ -2,6 +2,10 @@ package com.brutushammerfist.text;
 
 import java.util.ArrayList;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
 public class Armor extends Item {
     public enum ArmorType {
         HELM,
@@ -11,11 +15,12 @@ public class Armor extends Item {
         HANDS
     }
 
-    public Armor(String name, ArmorType type, String description) {
+    public Armor(String name, ArmorType type, String description, JsonArray stats) {
         this.name = name;
         this.stackSize = 1;
         this.maxStackSize = 1;
 		this.description = description;
+		this.stats = stats;
 
         this.slotTypes = new ArrayList<>();
         switch (type) {

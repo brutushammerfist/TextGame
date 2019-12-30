@@ -69,7 +69,7 @@ public class GameCartridge {
     private void parseGameData() {
         // Parse player information
         JsonObject playerJson = this.fileJson.getAsJsonObject("player");
-        this.player = new PlayerCharacter(playerJson.get("name").getAsString(), playerJson.get("class").getAsString(), playerJson.get("currency").getAsInt(), playerJson.get("health").getAsInt(), playerJson.get("power").getAsInt());
+        this.player = new PlayerCharacter(playerJson.get("name").getAsString(), playerJson.get("class").getAsString(), playerJson.get("currency").getAsInt(), playerJson.get("health").getAsInt(), playerJson.get("power").getAsInt(), playerJson.getAsJsonArray("attacks"));
 		
 		// Parse everything else
 		this.parseStats();
@@ -81,7 +81,7 @@ public class GameCartridge {
 		// Parse player stats, now that stats are loaded
 		JsonArray playerStats = playerJson.getAsJsonArray("stats");
         for (int i = 0; i < playerStats.size(); i++) {
-			this.player.addStat(new Stat(this.stats.get(playerStats.get(i).getAsString())));
+			this.player.addStat(new Stat(playerStats.get(i).getAsJsonObject().get("stat").getAsString(), playerStats.get(i).getAsJsonObject().get("lvl").getAsInt(), this.stats.get(playerStats.get(i).getAsJsonObject().get("stat").getAsString()).getMaxLvl()));
 		}
     }
 
@@ -144,22 +144,22 @@ public class GameCartridge {
 
             switch (currItem.get("type").getAsString()) {
                 case "weapon":
-                    this.items.add(new Weapon(currItem.get("name").getAsString(), currItem.get("description").getAsString()));
+                    this.items.add(new Weapon(currItem.get("name").getAsString(), currItem.get("description").getAsString(), currItem.getAsJsonArray("stats")));
                     break;
                 case "helm":
-                    this.items.add(new Armor(currItem.get("name").getAsString(), Armor.ArmorType.HELM, currItem.get("description").getAsString()));
+                    this.items.add(new Armor(currItem.get("name").getAsString(), Armor.ArmorType.HELM, currItem.get("description").getAsString(), currItem.getAsJsonArray("stats")));
                     break;
                 case "chest":
-                    this.items.add(new Armor(currItem.get("name").getAsString(), Armor.ArmorType.CHEST, currItem.get("description").getAsString()));
+                    this.items.add(new Armor(currItem.get("name").getAsString(), Armor.ArmorType.CHEST, currItem.get("description").getAsString(), currItem.getAsJsonArray("stats")));
                     break;
                 case "legs":
-                    this.items.add(new Armor(currItem.get("name").getAsString(), Armor.ArmorType.LEGS, currItem.get("description").getAsString()));
+                    this.items.add(new Armor(currItem.get("name").getAsString(), Armor.ArmorType.LEGS, currItem.get("description").getAsString(), currItem.getAsJsonArray("stats")));
                     break;
                 case "boots":
-                    this.items.add(new Armor(currItem.get("name").getAsString(), Armor.ArmorType.BOOTS, currItem.get("description").getAsString()));
+                    this.items.add(new Armor(currItem.get("name").getAsString(), Armor.ArmorType.BOOTS, currItem.get("description").getAsString(), currItem.getAsJsonArray("stats")));
                     break;
                 case "hands":
-                    this.items.add(new Armor(currItem.get("name").getAsString(), Armor.ArmorType.HANDS, currItem.get("description").getAsString()));
+                    this.items.add(new Armor(currItem.get("name").getAsString(), Armor.ArmorType.HANDS, currItem.get("description").getAsString(), currItem.getAsJsonArray("stats")));
                     break;
                 case "consumable":
                     break;
@@ -236,9 +236,9 @@ public class GameCartridge {
         this.player.takeDamage(dmg);
     }
 
-    int playerAttack() {
+    /*int playerAttack() {
         return this.player.attack();
-    }
+    }*/
 
     public String getContents() {
         return this.fileContents;
@@ -269,4 +269,14 @@ public class GameCartridge {
     }
 
     public ArrayList<Stat> getPlayerStats() { return this.player.getStats(); }
+
+	public JsonArray getPlayerAttacks() { return this.player.getAttacks(); }
+	
+	public int playerAttackDamage(String name) { return this.player.attack(name); }
+	
+	public void playerEquip(String name) { this.player.equipItem(name); }
+	
+	public Inventory getPlayerInv() { return this.player.getInv(); }
+	
+	public void removePlayerItem(Item toRemove) { this.player.getInv().removeItem(toRemove); }
 }

@@ -2,12 +2,17 @@ package com.brutushammerfist.text;
 
 import java.util.ArrayList;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
 public class Item {
     protected String name;
     protected ItemType type;
     protected int stackSize;
     protected int maxStackSize;
 	protected String description;
+	protected JsonArray stats;
 
     protected ArrayList<ItemSlot.SlotType> slotTypes;
 
@@ -46,4 +51,6 @@ public class Item {
     public int getStackSize() { return this.stackSize; }
 
     public int getMaxSize() { return this.maxStackSize; }
+	
+	public JsonArray getStats() { return this.stats; }
 }

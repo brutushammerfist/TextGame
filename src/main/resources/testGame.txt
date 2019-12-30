@@ -10,8 +10,34 @@
         "health" : "500",
         "power" : "15",
 		"stats" : [
-			"Strength",
-			"Dexterity"
+			{
+				"stat" : "Strength",
+				"lvl" : "0"
+			},
+			{
+				"stat" : "Dexterity",
+				"lvl" : "0"
+			}
+		],
+		"attacks" : [
+			{
+				"name" : "Kick",
+				"text" : "You swing your leg at the enemy. You deal %s damage.",
+				"base" : "10",
+				"mods" : [
+					"Strength",
+					"Dexterity"
+				]
+			},
+			{
+				"name" : "Punch",
+				"text" : "You strike your enemy swiftly with your hands. You deal %s damage.",
+				"base" : "5",
+				"mods" : [
+					"Strength",
+					"Dexterity"
+				]
+			}
 		]
     },
     "scenes" : [
@@ -89,10 +115,6 @@
 					"lvl" : "55"
 				}
 			],
-			"attackMods" : [
-				"Strength",
-				"Dexterity"
-			],
             "attacks" : [
                 {
                     "name" : "claw",
@@ -128,9 +150,6 @@
 					"lvl" : "5"
 				}
 			],
-			"attackMods" : [
-				"Strength"
-			],
             "attacks" : [
                 {
                     "name" : "bite",
@@ -155,12 +174,24 @@
         {
             "type" : "weapon",
             "name" : "Thunderfury, the Blessed Blade of the Windseeker",
-			"description" : "A blade."
+			"description" : "A blade.",
+			"stats" : [
+				{
+					"name" : "Strength",
+					"lvl" : "40"
+				}
+			]
         },
         {
             "type" : "helm",
             "name" : "Helmet of the Wastes",
-			"description" : "A helmet."
+			"description" : "A helmet.",
+			"stats" : [
+				{
+					"name" : "Dexterity",
+					"lvl" : "20"
+				}
+			]
         }
     ],
 	"stats" : [
