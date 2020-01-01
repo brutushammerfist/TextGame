@@ -145,9 +145,11 @@ public class TextGame extends Application {
 						}
 					});
 				}
+                item.setMaxWidth(Double.MAX_VALUE);
 				charInventory.getChildren().add(item);
 			} else {
 				Button item = new Button("Empty.");
+                item.setMaxWidth(Double.MAX_VALUE);
 				charInventory.getChildren().add(item);
 			}
 		}
@@ -259,18 +261,25 @@ public class TextGame extends Application {
     public void start(Stage primaryStage) {
         VBox root = new VBox();
 
-        GridPane gameRoot = new GridPane();
-
+        // Main Text
         ScrollPane scroll = new ScrollPane();
-        ScrollPane gridScroll = new ScrollPane();
-        VBox grid = new VBox();
         TextFlow flow = new TextFlow();
+
+        // Character Info Side Pane
         TabPane characterInfo = new TabPane();
-		characterInfo.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
-		VBox overView = new VBox();
+        characterInfo.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
+        ScrollPane gridScroll = new ScrollPane();
+        ScrollPane overScroll = new ScrollPane();
+        ScrollPane invScroll = new ScrollPane();
+        ScrollPane statScroll = new ScrollPane();
+        ScrollPane equipScroll = new ScrollPane();
+        VBox overView = new VBox();
         VBox charInventory = new VBox();
         VBox charStats = new VBox();
         VBox charEquip = new VBox();
+
+        // Interactive Area
+        VBox grid = new VBox();
 		
 		CartridgeBuilder builder = new CartridgeBuilder();
 
@@ -304,14 +313,14 @@ public class TextGame extends Application {
         scroll.maxWidthProperty().bind(primaryStage.widthProperty().multiply(0.74));
         scroll.minHeightProperty().bind(primaryStage.heightProperty().multiply(0.70));
         scroll.maxHeightProperty().bind(primaryStage.heightProperty().multiply(0.70));
+
         gridScroll.minWidthProperty().bind(primaryStage.widthProperty().multiply(0.74));
         gridScroll.maxWidthProperty().bind(primaryStage.widthProperty().multiply(0.74));
         gridScroll.minHeightProperty().bind(primaryStage.heightProperty().multiply(0.2425));
         gridScroll.maxHeightProperty().bind(primaryStage.heightProperty().multiply(0.2425));
-        characterInfo.minWidthProperty().bind(primaryStage.widthProperty().multiply(0.24));
-        characterInfo.maxWidthProperty().bind(primaryStage.widthProperty().multiply(0.24));
-        characterInfo.minHeightProperty().bind(primaryStage.heightProperty().multiply(0.2425));
-        characterInfo.maxHeightProperty().bind(primaryStage.heightProperty().multiply(0.2425));
+
+        characterInfo.minWidthProperty().bind(primaryStage.widthProperty().multiply(0.2475));
+        characterInfo.maxWidthProperty().bind(primaryStage.widthProperty().multiply(0.2475));
 
         flow.minWidthProperty().bind(scroll.widthProperty().multiply(0.99));
         flow.maxWidthProperty().bind(scroll.widthProperty().multiply(0.99));
@@ -352,18 +361,32 @@ public class TextGame extends Application {
         grid.getChildren().add(loadButton);
         grid.setFillWidth(true);
 
-		Tab overview = new Tab("Overview", overView);
-        Tab inventory = new Tab("Inventory", charInventory);
-        Tab stats = new Tab("Stats", charStats);
-        Tab equipment = new Tab("Equipment", charEquip);
+        overScroll.setContent(overView);
+        invScroll.setContent(charInventory);
+        statScroll.setContent(charStats);
+        equipScroll.setContent(charEquip);
+
+		Tab overview = new Tab("Overview", overScroll);
+        Tab inventory = new Tab("Inventory", invScroll);
+        Tab stats = new Tab("Stats", statScroll);
+        Tab equipment = new Tab("Equipment", equipScroll);
+
+        invScroll.maxWidthProperty().bind(primaryStage.widthProperty().multiply(0.2475));
+        invScroll.minWidthProperty().bind(primaryStage.widthProperty().multiply(0.2475));
+        invScroll.maxHeightProperty().bind(primaryStage.heightProperty().multiply(0.91));
+        invScroll.minHeightProperty().bind(primaryStage.heightProperty().multiply(0.91));
+        charInventory.maxWidthProperty().bind(invScroll.widthProperty().multiply(0.97));
+        charInventory.minWidthProperty().bind(invScroll.widthProperty().multiply(0.97));
 
         characterInfo.getTabs().addAll(overview, inventory, stats, equipment);
 
-        gameRoot.add(scroll, 0, 0, 6, 6);
-        gameRoot.add(gridScroll, 0, 7, 1, 1);
-        gameRoot.add(characterInfo, 1, 0, 1, 1);
+        VBox rootLeft = new VBox();
+        rootLeft.getChildren().addAll(scroll, gridScroll);
 
-        root.getChildren().addAll(menuBar, gameRoot);
+        HBox rootRight = new HBox();
+        rootRight.getChildren().addAll(rootLeft, characterInfo);
+
+        root.getChildren().addAll(menuBar, rootRight);
 
         Scene scene = new Scene(root, 600, 600);
 

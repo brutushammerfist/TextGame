@@ -8,7 +8,7 @@ public class Inventory {
 
     public Inventory() {
         this.inventory = new ArrayList<>();
-        this.maxSize = 3;
+        this.maxSize = 100;
     }
 
     public Inventory(int size) {

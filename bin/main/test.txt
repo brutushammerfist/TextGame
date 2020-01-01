@@ -1,0 +1,68 @@
+{
+    "title" : "Did someone say 'Thunderfury, the Blessed Blade of the Windseeker'?",
+    "description" : "This is a small test to ensure that my code isn't terribly broken. Bahahahaha! Yea, like it's not broken...",
+    "author" : "Test",
+    "version" : "0.127",
+    "player" : {
+            "name" : "A-A-Ron",
+            "class" : "Warrior",
+            "currency" : "200",
+            "health" : "500",
+            "power" : "15"
+    },
+    "scenes" : [
+        {
+            "begin" : "true",
+            "id" : "Main Menu",
+            "type" : "menu",
+            "text" : "Welcome to Did someone say 'Thunderfury, the Blessed Blade of the Windseeker'?",
+            "options" : [
+                {
+                    "value" : "Start Game",
+                    "result" : "Opening"
+                }
+            ]
+        },
+        {
+            "id" : "Opening",
+            "type" : "dialogue",
+            "text" : "The journey from your home village in the far east has been long and perilous, but you've finally made it to Blackhaven. Blackhaven is a port town on the coast of the Netherian Sea, using the Gulf of Matronus to shield the ships in port from raging seas when storms roll through the area. Your carriage pulls to a stop in the center of town.",
+            "options" : [
+                {
+                    "value" : "Step out of the carriage.",
+                    "result" : "Town Square"
+                }
+            ]
+        },
+        {
+            "id" : "Town Square",
+            "type" : "dialogue",
+            "text" : "The streets are much more crowded than those that you're used to. There are peddlers and markets stalls lining the entire main street and the hustle and bustle of normal business made up a large portion of the noise you were hearing. It didn't take long for your mind to place this distraction in the back of your mind, as you were faced with several options. You were tired from your journey. Very tired. Would you get food first, or head to an inn to get some shut eye before continuing upon your quest?",
+            "options" : [
+                {
+                    "value" : "I'm starved! Let's eat!",
+                    "result" : "food"
+                },
+                {
+                    "value" : "I'm tired. Let's get some rest and worry about things tomorrow.",
+                    "result" : "sleep"
+                }
+            ]
+        },
+        {
+            "id" : "food",
+            "type" : "dialogue",
+            "text" : "After ordering your food in a small diner that you found off to the side of the road, you take a seat at the counter and await its arrival. You're so starved that you dig in immediately upon it's arrival. The poison that was placed in the food doesn't take long to destroy your insides. It's a matter of moments before you're on the ground, bleeding internally and the world around you fading to black.",
+            "options" : []
+        },
+        {
+            "id" : "sleep",
+            "type" : "dialogue",
+            "text" : "After paying for a room within the Inn, you head up to bed and rest for the night. You are awoken in the middle of the night to the feeling of a knife being drug across your throat. The robber finishes dispatching you and then makes off with all of your belongings.",
+            "options" : []
+        }
+    ],
+    "monsters" : [
+
+    ]
+}

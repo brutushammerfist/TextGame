@@ -1,0 +1,128 @@
+{
+    "title" : "Title",
+    "description" : "Describe your game here.",
+    "author" : "WriterGuy",
+    "version" : "0.0",
+    "player" : {
+        "name" : "A-A-Ron",
+        "class" : "Warrior",
+        "currency" : "200",
+        "health" : "500",
+        "power" : "15"
+    },
+    "scenes" : [
+        {
+            "id" : "Opening",
+            "type" : "dialogue",
+            "text" : "I'm a placeholder. Watch me hold places.",
+            "options" : [
+                    {
+                        "value" : "Stone him.",
+                        "result" : "fight"
+                    },
+                    {
+                        "value" : "Run.",
+                        "result" : "fight"
+                    }
+            ]
+        },
+        {
+            "begin" : "true",
+            "id" : "Main Menu",
+            "type" : "menu",
+            "text" : "text",
+            "options" : [
+                    {
+                        "value" : "Start Game",
+                        "result" : "Opening"
+                    }
+            ]
+        },
+        {
+            "id" : "fight",
+            "type" : "combat",
+            "monsters" : [
+				{
+					"name" : "Bear",
+					"spawn" : "15",
+					"text" : "Making your way through the forest, you encounter a black bear. It is not much larger than the size of your pit bull at home, but the creature is still quite fearsome."
+				},
+				{
+					"name" : "Zombie",
+					"spawn" : "85",
+					"text" : "Making your way through the forest, you encounter a Zombie! It doesn't seem to be very friendly..."
+				}
+			],
+            "win" : "win",
+            "lose" : "lose"
+        },
+        {
+            "id" : "win",
+            "type" : "dialogue",
+            "text" : "You won!",
+            "options" : []
+        },
+        {
+            "id" : "lose",
+            "type" : "dialogue",
+            "text" : "You lost!",
+            "options" : []
+        }
+    ],
+    "monsters" : [
+        {
+            "name" : "Bear",
+            "type" : "beast",
+            "health" : "100",
+            "loot" : "beast",
+            "attacks" : [
+                {
+                    "name" : "claw",
+                    "text" : "The bear cub swipes at you with its claws. This deals %s damage!",
+                    "power" : "5"
+                },
+                {
+                    "name" : "pounce",
+                    "text" : "The bear cub pounces at you, dealing %s damage with its heft!",
+                    "power" : "10"
+                }
+            ]
+        },
+		{
+            "name" : "Zombie",
+            "type" : "undead",
+            "health" : "100",
+            "loot" : "undead",
+            "attacks" : [
+                {
+                    "name" : "bite",
+                    "text" : "The zombie bites into your flesh, ripping a piece off and chewing it. This deals %s damage!",
+                    "power" : "15"
+                },
+                {
+                    "name" : "scratch",
+                    "text" : "The diseased nails of the undead dig into your skin, dealing %s damage!",
+                    "power" : "10"
+                }
+            ]
+        }
+    ],
+    "items" : [
+        {
+            "type" : "weapon",
+            "name" : "Thunderfury, the Blessed Blade of the Windseeker"
+        },
+        {
+            "type" : "helm",
+            "name" : "Helmet of the Wastes"
+        }
+    ],
+    "loottables" : {
+        "beast" : [
+
+        ],
+        "undead" : [
+
+        ]
+    }
+}
