@@ -83,6 +83,10 @@ public class GameCartridge {
         for (int i = 0; i < playerStats.size(); i++) {
 			this.player.addStat(new Stat(playerStats.get(i).getAsJsonObject().get("stat").getAsString(), playerStats.get(i).getAsJsonObject().get("lvl").getAsInt(), this.stats.get(playerStats.get(i).getAsJsonObject().get("stat").getAsString()).getMaxLvl()));
 		}
+
+        for (Item item : this.items) {
+            this.player.addItem(item);
+        }
     }
 
     private void parseScenes() {
@@ -275,8 +279,12 @@ public class GameCartridge {
 	public int playerAttackDamage(String name) { return this.player.attack(name); }
 	
 	public void playerEquip(String name) { this.player.equipItem(name); }
-	
+
+	public void playerUnequip(String toRemove) { this.player.unequipItem(toRemove); }
+
 	public Inventory getPlayerInv() { return this.player.getInv(); }
 	
 	public void removePlayerItem(Item toRemove) { this.player.getInv().removeItem(toRemove); }
+
+	public ArrayList<Item> getPlayerEquipment() { return this.player.getEquipment(); }
 }

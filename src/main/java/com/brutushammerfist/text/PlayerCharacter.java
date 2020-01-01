@@ -1,5 +1,6 @@
 package com.brutushammerfist.text;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 import com.google.gson.Gson;
@@ -179,6 +180,39 @@ public class PlayerCharacter {
         }
     }
 
+    public void unequipItem(String toRemove) {
+        switch (toRemove) {
+            case "Helm":
+                this.inventory.addItem(this.helm.getItem());
+                this.helm.setItem(null);
+                break;
+            case "Chest":
+                this.inventory.addItem(this.chest.getItem());
+                this.chest.setItem(null);
+                break;
+            case "Legs":
+                this.inventory.addItem(this.legs.getItem());
+                this.legs.setItem(null);
+                break;
+            case "Hands":
+                this.inventory.addItem(this.hands.getItem());
+                this.hands.setItem(null);
+                break;
+            case "Boots":
+                this.inventory.addItem(this.boots.getItem());
+                this.boots.setItem(null);
+                break;
+            case "Main Hand":
+                this.inventory.addItem(this.mainHand.getItem());
+                this.mainHand.setItem(null);
+                break;
+            case "Off Hand":
+                this.inventory.addItem(this.offHand.getItem());
+                this.offHand.setItem(null);
+                break;
+        }
+    }
+
     public ArrayList<Stat> getStats() {
         ArrayList<Stat> tempList = new ArrayList<>();
 		
@@ -203,4 +237,18 @@ public class PlayerCharacter {
 	public Inventory getInv() {
 		return this.inventory;
 	}
+
+	public ArrayList<Item> getEquipment() {
+        ArrayList<Item> equipment = new ArrayList<>();
+
+        equipment.add(this.helm.getItem());
+        equipment.add(this.chest.getItem());
+        equipment.add(this.legs.getItem());
+        equipment.add(this.hands.getItem());
+        equipment.add(this.boots.getItem());
+        equipment.add(this.mainHand.getItem());
+        equipment.add(this.offHand.getItem());
+
+        return equipment;
+    }
 }

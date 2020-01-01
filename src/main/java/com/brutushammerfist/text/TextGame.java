@@ -7,6 +7,7 @@ import com.google.gson.JsonObject;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -110,21 +111,27 @@ public class TextGame extends Application {
     }
 
     private void loadCharacterInfo(VBox overview, VBox charInventory, VBox charStats, VBox charEquip) {
-		overview.getChildren().clear();
+		// Display Overview (Health, Mana, etc.)
+        overview.getChildren().clear();
         Label health = new Label("Health: " + Integer.toString(this.game.getPlayerHealth()) + "/" + Integer.toString(this.game.getPlayerMaxHealth()));
 		overview.getChildren().add(health);
-		
+
+		// Show Player Stats
+        charStats.getChildren().clear();
 		ArrayList<Stat> stats = this.game.getPlayerStats();
 
         charStats.getChildren().clear();
-		
+
 		for (Stat stat : stats) {
             Label label = new Label(stat.getName() + ": " + stat.getLvl() + "/" + stat.getMaxLvl());
             charStats.getChildren().add(label);
         }
-		
+
+		// Show Player Inventory
+        charInventory.getChildren().clear();
+
 		for (int i = 0; i < game.getPlayerInv().getMaxSize(); i++) {
-			if (game.getPlayerInv().get(i) != null) {
+			if (game.getPlayerInv().get(i).getItem() != null) {
 				final String itemName = game.getPlayerInv().get(i).getItem().getName();
 				final int finalI = i;
 				Button item = new Button(itemName);
@@ -134,6 +141,7 @@ public class TextGame extends Application {
 						public void handle(ActionEvent event) {
 							game.playerEquip(itemName);
 							game.removePlayerItem(game.getPlayerInv().get(finalI).getItem());
+							loadCharacterInfo(overview, charInventory, charStats, charEquip);
 						}
 					});
 				} else if (game.getPlayerInv().get(i).getItem().getType() == Item.ItemType.ARMOR) {
@@ -142,6 +150,7 @@ public class TextGame extends Application {
 						public void handle(ActionEvent event) {
 							game.playerEquip(itemName);
 							game.removePlayerItem(game.getPlayerInv().get(finalI).getItem());
+                            loadCharacterInfo(overview, charInventory, charStats, charEquip);
 						}
 					});
 				}
@@ -152,6 +161,52 @@ public class TextGame extends Application {
                 item.setMaxWidth(Double.MAX_VALUE);
 				charInventory.getChildren().add(item);
 			}
+		}
+
+        // Show Player Equipment
+        charEquip.getChildren().clear();
+
+        ArrayList<Item> equipment = game.getPlayerEquipment();
+
+		ArrayList<String> slotNames = new ArrayList<>();
+		slotNames.add("Helm");
+		slotNames.add("Chest");
+		slotNames.add("Legs");
+		slotNames.add("Hands");
+		slotNames.add("Boots");
+		slotNames.add("Main Hand");
+		slotNames.add("Off Hand");
+
+		for (int i = 0; i < equipment.size(); i++) {
+		    if (equipment.get(i) == null) {
+                Label label = new Label(slotNames.get(i));
+                label.setMaxWidth(Double.MAX_VALUE);
+                label.setAlignment(Pos.CENTER);
+
+                Button button = new Button("Empty.");
+                button.setMaxWidth(Double.MAX_VALUE);
+
+                charEquip.getChildren().addAll(label, button);
+            } else {
+		        Label label = new Label(slotNames.get(i));
+                label.setMaxWidth(Double.MAX_VALUE);
+                label.setAlignment(Pos.CENTER);
+
+                final String toRemove = slotNames.get(i);
+
+                Button button = new Button(equipment.get(i).getName());
+                button.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent event) {
+                        // Set to remove Item if room in inventory
+                        game.playerUnequip(toRemove);
+                        loadCharacterInfo(overview, charInventory, charStats, charEquip);
+                    }
+                });
+                button.setMaxWidth(Double.MAX_VALUE);
+
+                charEquip.getChildren().addAll(label, button);
+            }
 		}
     }
 
@@ -377,6 +432,13 @@ public class TextGame extends Application {
         invScroll.minHeightProperty().bind(primaryStage.heightProperty().multiply(0.91));
         charInventory.maxWidthProperty().bind(invScroll.widthProperty().multiply(0.97));
         charInventory.minWidthProperty().bind(invScroll.widthProperty().multiply(0.97));
+
+        equipScroll.maxWidthProperty().bind(primaryStage.widthProperty().multiply(0.2475));
+        equipScroll.minWidthProperty().bind(primaryStage.widthProperty().multiply(0.2475));
+        equipScroll.maxHeightProperty().bind(primaryStage.heightProperty().multiply(0.91));
+        equipScroll.minHeightProperty().bind(primaryStage.heightProperty().multiply(0.91));
+        charEquip.maxWidthProperty().bind(invScroll.widthProperty().multiply(0.97));
+        charEquip.minWidthProperty().bind(invScroll.widthProperty().multiply(0.97));
 
         characterInfo.getTabs().addAll(overview, inventory, stats, equipment);
 
