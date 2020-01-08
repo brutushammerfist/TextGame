@@ -19,6 +19,8 @@ public class PlayerCharacter {
 	private JsonArray attacks;
 	
 	private AbstractMap<String, Stat> stats = new HashMap<>();
+	
+	private AbstractMap<String, JsonObject> tempStats = new HashMap<>();
 
     private ItemSlot helm;
     private ItemSlot chest;
@@ -184,30 +186,51 @@ public class PlayerCharacter {
         switch (toRemove) {
             case "Helm":
                 this.inventory.addItem(this.helm.getItem());
+				for (int i = 0; i < this.helm.getItem().getStats().size(); i++) {
+					this.stats.get(this.helm.getItem().getStats().get(i).getAsJsonObject().get("name").getAsString()).rmLvl(this.helm.getItem().getStats().get(i).getAsJsonObject().get("lvl").getAsInt());
+				}
                 this.helm.setItem(null);
                 break;
             case "Chest":
                 this.inventory.addItem(this.chest.getItem());
+				for (int i = 0; i < this.chest.getItem().getStats().size(); i++) {
+					this.stats.get(this.chest.getItem().getStats().get(i).getAsJsonObject().get("name").getAsString()).rmLvl(this.chest.getItem().getStats().get(i).getAsJsonObject().get("lvl").getAsInt());
+				}
                 this.chest.setItem(null);
                 break;
             case "Legs":
                 this.inventory.addItem(this.legs.getItem());
+				for (int i = 0; i < this.legs.getItem().getStats().size(); i++) {
+					this.stats.get(this.legs.getItem().getStats().get(i).getAsJsonObject().get("name").getAsString()).rmLvl(this.legs.getItem().getStats().get(i).getAsJsonObject().get("lvl").getAsInt());
+				}
                 this.legs.setItem(null);
                 break;
             case "Hands":
                 this.inventory.addItem(this.hands.getItem());
+				for (int i = 0; i < this.hands.getItem().getStats().size(); i++) {
+					this.stats.get(this.hands.getItem().getStats().get(i).getAsJsonObject().get("name").getAsString()).rmLvl(this.hands.getItem().getStats().get(i).getAsJsonObject().get("lvl").getAsInt());
+				}
                 this.hands.setItem(null);
                 break;
             case "Boots":
                 this.inventory.addItem(this.boots.getItem());
+				for (int i = 0; i < this.boots.getItem().getStats().size(); i++) {
+					this.stats.get(this.boots.getItem().getStats().get(i).getAsJsonObject().get("name").getAsString()).rmLvl(this.boots.getItem().getStats().get(i).getAsJsonObject().get("lvl").getAsInt());
+				}
                 this.boots.setItem(null);
                 break;
             case "Main Hand":
                 this.inventory.addItem(this.mainHand.getItem());
+				for (int i = 0; i < this.mainHand.getItem().getStats().size(); i++) {
+					this.stats.get(this.mainHand.getItem().getStats().get(i).getAsJsonObject().get("name").getAsString()).rmLvl(this.mainHand.getItem().getStats().get(i).getAsJsonObject().get("lvl").getAsInt());
+				}
                 this.mainHand.setItem(null);
                 break;
             case "Off Hand":
                 this.inventory.addItem(this.offHand.getItem());
+				for (int i = 0; i < this.offHand.getItem().getStats().size(); i++) {
+					this.stats.get(this.offHand.getItem().getStats().get(i).getAsJsonObject().get("name").getAsString()).rmLvl(this.offHand.getItem().getStats().get(i).getAsJsonObject().get("lvl").getAsInt());
+				}
                 this.offHand.setItem(null);
                 break;
         }
@@ -251,4 +274,10 @@ public class PlayerCharacter {
 
         return equipment;
     }
+	
+	public void consume(Item toConsume) {
+		for (int i = 0; i < toConsume.getStats().size(); i++) {
+			this.tempStats.put(toConsume.getStats().get(i).getAsJsonObject().get("name").getAsString(), toConsume.getStats().get(i).getAsJsonObject());
+		}
+	}
 }

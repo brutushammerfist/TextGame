@@ -192,7 +192,13 @@
 					"lvl" : "20"
 				}
 			]
-        }
+        },
+		{
+			"type" : "consumable",
+			"name" : "Healing Potion",
+			"description" : "A healing potion. Heals 20 health.",
+			"maxStack" : "4"
+		}
     ],
 	"stats" : [
 		{

@@ -153,6 +153,19 @@ public class TextGame extends Application {
                             loadCharacterInfo(overview, charInventory, charStats, charEquip);
 						}
 					});
+				} else if (game.getPlayerInv().get(i).getItem().getType() == Item.ItemType.CONSUMABLE) {
+					item.setOnAction(new EventHandler<ActionEvent>() {
+						@Override
+						public void handle(ActionEvent event) {
+							if (game.getPlayerInv().get(finalI).getItem().getStackSize() == 1) {
+								game.playerConsume(game.getPlayerInv().get(finalI).getItem());
+								game.removePlayerItem(game.getPlayerInv().get(finalI).getItem());
+							} else {
+								game.playerConsume(game.getPlayerInv().get(finalI).getItem());
+								game.getPlayerInv().get(finalI).getItem().setStackSize(game.getPlayerInv().get(finalI).getItem().getStackSize() - 1);
+							}
+						}
+					});
 				}
                 item.setMaxWidth(Double.MAX_VALUE);
 				charInventory.getChildren().add(item);

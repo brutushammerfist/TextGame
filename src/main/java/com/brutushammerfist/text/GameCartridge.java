@@ -166,6 +166,7 @@ public class GameCartridge {
                     this.items.add(new Armor(currItem.get("name").getAsString(), Armor.ArmorType.HANDS, currItem.get("description").getAsString(), currItem.getAsJsonArray("stats")));
                     break;
                 case "consumable":
+					this.items.add(new Item(currItem.get("name").getAsString(), Item.ItemType.CONSUMABLE, 0, currItem.get("maxStack").getAsInt(), currItem.get("description").getAsString()));
                     break;
                 //case "bag":
                     //break;
@@ -240,10 +241,6 @@ public class GameCartridge {
         this.player.takeDamage(dmg);
     }
 
-    /*int playerAttack() {
-        return this.player.attack();
-    }*/
-
     public String getContents() {
         return this.fileContents;
     }
@@ -287,4 +284,6 @@ public class GameCartridge {
 	public void removePlayerItem(Item toRemove) { this.player.getInv().removeItem(toRemove); }
 
 	public ArrayList<Item> getPlayerEquipment() { return this.player.getEquipment(); }
+	
+	public void playerConsume(Item toConsume) { this.player.consume(toConsume); }
 }
