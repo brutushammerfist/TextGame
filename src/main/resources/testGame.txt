@@ -197,7 +197,16 @@
 			"type" : "consumable",
 			"name" : "Healing Potion",
 			"description" : "A healing potion. Heals 20 health.",
-			"maxStack" : "4"
+			"maxStack" : "4",
+			"stats" : [
+				{
+					"type" : "resource",
+					"resource" : "health",
+					"amount" : "40",
+					"amtType" : "flat",
+					"time" : 0
+				}
+			]
 		}
     ],
 	"stats" : [

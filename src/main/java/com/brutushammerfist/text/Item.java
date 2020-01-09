@@ -35,6 +35,15 @@ public class Item {
         this.maxStackSize = maxSize;
 		this.description = description;
     }
+	
+	public Item(String name, ItemType type, int size, int maxSize, String description, JsonArray stats) {
+        this.name = name;
+        this.type = type;
+        this.stackSize = size;
+        this.maxStackSize = maxSize;
+		this.description = description;
+		this.stats = stats;
+    }
 
     public void setName(String name) { this.name = name; }
 

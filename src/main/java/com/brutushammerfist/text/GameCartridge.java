@@ -166,7 +166,7 @@ public class GameCartridge {
                     this.items.add(new Armor(currItem.get("name").getAsString(), Armor.ArmorType.HANDS, currItem.get("description").getAsString(), currItem.getAsJsonArray("stats")));
                     break;
                 case "consumable":
-					this.items.add(new Item(currItem.get("name").getAsString(), Item.ItemType.CONSUMABLE, 0, currItem.get("maxStack").getAsInt(), currItem.get("description").getAsString()));
+					this.items.add(new Item(currItem.get("name").getAsString(), Item.ItemType.CONSUMABLE, 0, currItem.get("maxStack").getAsInt(), currItem.get("description").getAsString(), currItem.getAsJsonArray("stats")));
                     break;
                 //case "bag":
                     //break;

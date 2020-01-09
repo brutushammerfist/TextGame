@@ -15,12 +15,14 @@ public class PlayerCharacter {
     private int currencyPouch;
     private int health;
     private int maxHealth;
-    private int power;
 	private JsonArray attacks;
+	
+	private AbstractMap<String, Integer> resources = new HashMap<>();
 	
 	private AbstractMap<String, Stat> stats = new HashMap<>();
 	
 	private AbstractMap<String, JsonObject> tempStats = new HashMap<>();
+	private AbstractMap<String, Integer> tempTimer = new HashMap<>();
 
     private ItemSlot helm;
     private ItemSlot chest;
@@ -277,7 +279,50 @@ public class PlayerCharacter {
 	
 	public void consume(Item toConsume) {
 		for (int i = 0; i < toConsume.getStats().size(); i++) {
-			this.tempStats.put(toConsume.getStats().get(i).getAsJsonObject().get("name").getAsString(), toConsume.getStats().get(i).getAsJsonObject());
+			JsonObject currStat = toConsume.getStats().get(i).getAsJsonObject();
+			
+			if (currStat.get("type").getAsString() == "resource") {
+				if (currStat.get("resource").getAsString() == "health") {
+					// 0 Time means instant
+					if (currStat.get("time").getAsInt() == 0) {
+						if (currStat.get("amtType").getAsString() == "flat") {
+							if ((this.health + currStat.get("amount").getAsInt()) > this.maxHealth) {
+								this.health = this.maxHealth;
+							} else {
+								this.health += currStat.get("amount").getAsInt();
+							}
+						} else {
+							if ((this.health + (currStat.get("amount").getAsInt() / 100) * this.maxHealth)) > this.maxHealth) {
+								this.health = this.maxHealth;
+							} else {
+								this.health += (currStat.get("amount").getAsInt() / 100) * this.maxHealth;
+							}
+						}
+					} else {
+						if (currStat.get("amtType").getAsString() == "flat") {
+							if ((this.health + currStat.get("amount").getAsInt()) > this.maxHealth) {
+								this.health = this.maxHealth;
+							} else {
+								this.health += currStat.get("amount").getAsInt();
+							}
+							this.tempStats.put(currStat.get("resource").getAsString(), currStat);
+							this.tempTimer.put(currStat.get("resource").getAsString(), currStat.get("time").getAsInt());
+						} else {
+							if ((this.health + (currStat.get("amount").getAsInt() / 100) * this.maxHealth)) > this.maxHealth) {
+								this.health = this.maxHealth;
+							} else {
+								this.health += (currStat.get("amount").getAsInt() / 100) * this.maxHealth;
+							}
+							this.tempStats.put(currStat.get("resource").getAsString(), currStat);
+							this.tempTimer.put(currStat.get("resource").getAsString(), currStat.get("time").getAsInt());
+						}
+					}
+				}
+			}
 		}
+	}
+	
+	public handleTicks() {
+		//Handle consumable ticks
 	}
 }
