@@ -54,7 +54,7 @@ public class PlayerCharacter {
         this.currencyPouch = currencyPouch;
         this.health = health;
         this.maxHealth = health;
-        this.power = power;
+        //this.power = power;
 		this.attacks = attacks;
 
         this.helm = new ItemSlot(ItemSlot.SlotType.HELM);
@@ -292,7 +292,7 @@ public class PlayerCharacter {
 								this.health += currStat.get("amount").getAsInt();
 							}
 						} else {
-							if ((this.health + (currStat.get("amount").getAsInt() / 100) * this.maxHealth)) > this.maxHealth) {
+							if (((this.health + (currStat.get("amount").getAsInt() / 100) * this.maxHealth)) > this.maxHealth) {
 								this.health = this.maxHealth;
 							} else {
 								this.health += (currStat.get("amount").getAsInt() / 100) * this.maxHealth;
@@ -308,7 +308,7 @@ public class PlayerCharacter {
 							this.tempStats.put(currStat.get("resource").getAsString(), currStat);
 							this.tempTimer.put(currStat.get("resource").getAsString(), currStat.get("time").getAsInt());
 						} else {
-							if ((this.health + (currStat.get("amount").getAsInt() / 100) * this.maxHealth)) > this.maxHealth) {
+							if (((this.health + (currStat.get("amount").getAsInt() / 100) * this.maxHealth)) > this.maxHealth) {
 								this.health = this.maxHealth;
 							} else {
 								this.health += (currStat.get("amount").getAsInt() / 100) * this.maxHealth;
@@ -322,7 +322,7 @@ public class PlayerCharacter {
 		}
 	}
 	
-	public handleTicks() {
+	public void handleTicks() {
 		//Handle consumable ticks
 	}
 }

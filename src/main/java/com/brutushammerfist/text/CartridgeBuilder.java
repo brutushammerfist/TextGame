@@ -8,6 +8,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
  
 public class CartridgeBuilder extends Application {
@@ -19,9 +20,48 @@ public class CartridgeBuilder extends Application {
     public void start(Stage primaryStage) {
 		TabPane root = new TabPane();
 		root.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
-		
-		VBox sceneInfo = new VBox();
-		sceneInfo.getChildren().add(new Label("Scenes"));
+
+		ListView listView = new ListView();
+
+		Label sceneIDLabel = new Label("ID:");
+		TextField sceneID = new TextField();
+
+		Label sceneTypeLabel = new Label("Type:");
+		Spinner sceneType = new Spinner();
+
+		Label sceneTextLabel = new Label("Text:");
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("Open Game File");
+		fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("All File", "*.*"));
+		Button sceneText = new Button("Select text file.");
+		sceneText.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				sceneText.setText(fileChooser.showOpenDialog(primaryStage).getAbsolutePath());
+			}
+		});
+
+		ListView option = new ListView();
+
+		Label optionValueLabel = new Label("Option Value:");
+		TextField optionValue = new TextField();
+
+		Label resultLabel = new Label("Result");
+		Spinner result = new Spinner();
+
+		TilePane optionInfo = new TilePane(optionValueLabel, optionValue, resultLabel, result);
+		optionInfo.setPrefColumns(2);
+
+		HBox options = new HBox(option, optionInfo);
+
+		//TilePane sceneInfoToo = new TilePane(sceneIDLabel, sceneID, sceneTypeLabel, sceneType, sceneTextLabel, sceneText);
+		TilePane sceneInfoThree = new TilePane(sceneIDLabel, sceneID, sceneTypeLabel, sceneType, sceneTextLabel, sceneText);
+		sceneInfoThree.setPrefColumns(2);
+
+		VBox sceneInfoToo = new VBox(sceneInfoThree, options);
+
+		HBox sceneInfo = new HBox(listView, sceneInfoToo);
+
 		VBox playerInfo = new VBox();
 		playerInfo.getChildren().add(new Label("Player"));
 		VBox itemInfo = new VBox();
@@ -39,10 +79,16 @@ public class CartridgeBuilder extends Application {
 		Tab enemies = new Tab("Enemies", enemyInfo);
 		Tab loottables = new Tab("Loottables", lootInfo);
 		Tab stats = new Tab("Stats", statInfo);
+
+
 		
 		root.getTabs().addAll(scenes, player, items, enemies, loottables, stats);
 		
 		Scene scene = new Scene(root, 600, 600);
+
+		primaryStage.setTitle("ListView Experiment 1");
+
+
 		
 		primaryStage.setTitle("Cartridge Builder");
 		primaryStage.setScene(scene);
